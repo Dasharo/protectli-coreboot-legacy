@@ -3,6 +3,7 @@
 ##
 ## Copyright (C) 2013 Google Inc.
 ## Copyright (C) 2015 Intel Corp.
+## Copyright (C) 2018 Eltan B.V.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -20,6 +21,7 @@ romstage-$(CONFIG_ENABLE_BUILTIN_COM1) += com_init.c
 ramstage-$(CONFIG_MAINBOARD_HAS_CHROMEOS) += chromeos.c
 ramstage-$(CONFIG_MAINBOARD_HAS_CHROMEOS) += ec.c
 ramstage-$(CONFIG_MAINBOARD_HAS_CHROMEOS) += gpio.c
+ramstage-y += hda_verb.c
 ramstage-y += irqroute.c
 ramstage-y += ramstage.c
 ramstage-y += w25q64.c

@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2013 Google Inc.
  * Copyright (C) 2015 Intel Corp.
+ * Copyright (C) 2018 Eltan B.V.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,6 +100,7 @@ void soc_init_pre_device(struct soc_intel_braswell_config *config);
 void soc_init_cpus(struct device *dev);
 void set_max_freq(void);
 void southcluster_enable_dev(struct device *dev);
+void sc_disable_devfn(struct device *dev);
 void scc_enable_acpi_mode(struct device *dev, int iosf_reg, int nvs_index);
 int SocStepping(void);
 void board_silicon_USB2_override(SILICON_INIT_UPD *params);

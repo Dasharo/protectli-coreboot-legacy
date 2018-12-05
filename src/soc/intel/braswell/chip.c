@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2013 Google Inc.
  * Copyright (C) 2015 Intel Corp.
+ * Copyright (C) 2018 Eltan B.V.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,20 +103,42 @@ void soc_silicon_init_params(SILICON_INIT_UPD *params)
 	printk(BIOS_DEBUG, "Updating UPD values for SiliconInit\n");
 	params->PcdSdcardMode = config->PcdSdcardMode;
 	params->PcdEnableHsuart0 = config->PcdEnableHsuart0;
+	if (config->lpss_acpi_mode && params->PcdEnableHsuart0)
+		params->PcdEnableHsuart0 = PCH_ACPI_MODE;
 	params->PcdEnableHsuart1 = config->PcdEnableHsuart1;
+	if (config->lpss_acpi_mode && params->PcdEnableHsuart1)
+		params->PcdEnableHsuart1 = PCH_ACPI_MODE;
 	params->PcdEnableAzalia = config->PcdEnableAzalia;
 	params->PcdEnableSata = config->PcdEnableSata;
 	params->PcdEnableXhci = config->PcdEnableXhci;
 	params->PcdEnableLpe = config->PcdEnableLpe;
 	params->PcdEnableDma0 = config->PcdEnableDma0;
+	if (config->lpss_acpi_mode && params->PcdEnableDma0)
+		params->PcdEnableDma0 = PCH_ACPI_MODE;
 	params->PcdEnableDma1 = config->PcdEnableDma1;
+	if (config->lpss_acpi_mode && params->PcdEnableDma1)
+		params->PcdEnableDma1 = PCH_ACPI_MODE;
 	params->PcdEnableI2C0 = config->PcdEnableI2C0;
+	if (config->lpss_acpi_mode && params->PcdEnableI2C0)
+		params->PcdEnableI2C0 = PCH_ACPI_MODE;
 	params->PcdEnableI2C1 = config->PcdEnableI2C1;
+	if (config->lpss_acpi_mode && params->PcdEnableI2C1)
+		params->PcdEnableI2C1 = PCH_ACPI_MODE;
 	params->PcdEnableI2C2 = config->PcdEnableI2C2;
+	if (config->lpss_acpi_mode && params->PcdEnableI2C2)
+		params->PcdEnableI2C2 = PCH_ACPI_MODE;
 	params->PcdEnableI2C3 = config->PcdEnableI2C3;
+	if (config->lpss_acpi_mode && params->PcdEnableI2C3)
+		params->PcdEnableI2C3 = PCH_ACPI_MODE;
 	params->PcdEnableI2C4 = config->PcdEnableI2C4;
+	if (config->lpss_acpi_mode && params->PcdEnableI2C4)
+		params->PcdEnableI2C4 = PCH_ACPI_MODE;
 	params->PcdEnableI2C5 = config->PcdEnableI2C5;
+	if (config->lpss_acpi_mode && params->PcdEnableI2C5)
+		params->PcdEnableI2C5 = PCH_ACPI_MODE;
 	params->PcdEnableI2C6 = config->PcdEnableI2C6;
+	if (config->lpss_acpi_mode && params->PcdEnableI2C6)
+		params->PcdEnableI2C6 = PCH_ACPI_MODE;
 	params->GraphicsConfigPtr = 0;
 	params->AzaliaConfigPtr = 0;
 	params->PunitPwrConfigDisable = config->PunitPwrConfigDisable;

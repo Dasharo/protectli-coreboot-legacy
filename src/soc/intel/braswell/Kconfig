@@ -137,4 +137,17 @@ config DISABLE_HPET
 	 Enable this to disable the HPET support
 	 Solves the Linux MP-BIOS bug timer not connected.
 
+config ENABLE_SERIRQ
+	bool "Enable Serial IRQ"
+	default n
+	help
+	  Enable Serial IRQ
+
+config SERIRQ_CONTINUOUS_MODE
+	bool "Serial IRQ continuous mode"
+	default n
+	depends on ENABLE_SERIRQ
+	help
+	  Enable Serial IRQ continuous mode
+
 endif

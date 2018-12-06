@@ -78,6 +78,14 @@ static void sc_add_mmio_resources(struct device *dev)
 #define LPC_DEFAULT_IO_RANGE_LOWER 0
 #define LPC_DEFAULT_IO_RANGE_UPPER 0x1000
 
+static void sc_enable_serial_irqs(struct device *dev)
+{
+	u8 *ilb_base = (u8 *)(pci_read_config32(dev, IBASE) & ~0xF);
+
+	write32(ilb_base + ILB_OIC, read32(ilb_base + ILB_OIC) | SIRQEN);
+	write8(ilb_base + SCNT, read8(ilb_base + SCNT) | SCNT_MODE);
+}
+
 static inline int io_range_in_default(int base, int size)
 {
 	/* Does it start above the range? */
@@ -161,6 +169,9 @@ static void sc_init(struct device *dev)
 
 	printk(BIOS_SPEW, "%s/%s (%s)\n",
 			__FILE__, __func__, dev_name(dev));
+
+	if (IS_ENABLED(CONFIG_ENABLE_SERIRQ))
+		sc_enable_serial_irqs(dev);
 
 	/* Set up the PIRQ PIC routing based on static config. */
 	for (i = 0; i < NUM_PIRQS; i++)
@@ -496,7 +507,9 @@ static void finalize_chipset(void *unused)
 		write32(spi + LVSCC, cfg.lvscc | VCL);
 	}
 	spi_init();
-	enable_serirq_quiet_mode();
+
+	if (!IS_ENABLED(CONFIG_SERIRQ_CONTINUOUS_MODE))
+		enable_serirq_quiet_mode();
 
 	printk(BIOS_DEBUG, "Finalizing SMM.\n");
 	outb(APM_CNT_FINALIZE, APM_CNT);

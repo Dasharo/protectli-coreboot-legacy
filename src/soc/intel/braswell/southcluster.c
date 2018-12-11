@@ -27,6 +27,7 @@
 #include <device/device.h>
 #include <device/pci.h>
 #include <device/pci_ids.h>
+#include <pc80/isa-dma.h>
 #include <pc80/i8254.h>
 #include <romstage_handoff.h>
 #include <soc/acpi.h>
@@ -224,6 +225,8 @@ static void sc_init(struct device *dev)
 
 	/* IO APIC initialization. */
 	sc_enable_ioapic(dev);
+
+	isa_dma_init();
 
 	/* Set up the PIRQ PIC routing based on static config. */
 	for (i = 0; i < NUM_PIRQS; i++)

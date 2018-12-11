@@ -19,6 +19,7 @@
 #include <arch/io.h>
 #include <arch/acpi.h>
 #include <arch/acpigen.h>
+#include <arch/ioapic.h>
 #include <bootstate.h>
 #include "chip.h"
 #include <console/console.h>
@@ -72,6 +73,10 @@ static void sc_add_mmio_resources(struct device *dev)
 	add_mmio_resource(dev, MPBASE, MPHY_BASE_ADDRESS, MPHY_BASE_SIZE);
 	add_mmio_resource(dev, PUBASE, PUNIT_BASE_ADDRESS, PUNIT_BASE_SIZE);
 	add_mmio_resource(dev, RCBA, RCBA_BASE_ADDRESS, RCBA_BASE_SIZE);
+	add_mmio_resource(dev, 0xfff,
+		0xffffffff - (CONFIG_COREBOOT_ROMSIZE_KB*KiB) + 1,
+		(CONFIG_COREBOOT_ROMSIZE_KB*KiB));	/* BIOS ROM */
+	add_mmio_resource(dev, 0xfec, IO_APIC_ADDR, 0x00001000); /* IOAPIC */
 }
 
 /* Default IO range claimed by the LPC device. The upper bound is exclusive. */
@@ -99,6 +104,45 @@ static inline int io_range_in_default(int base, int size)
 
 	/* This will return not in range for partial overlaps. */
 	return 0;
+}
+
+static void sc_enable_ioapic(struct device *dev)
+{
+	int i;
+	u32 reg32;
+	u8 *ilb_base = (u8 *)(pci_read_config32(dev, IBASE) & ~0x0f);
+
+	/*
+	 * Enable ACPI I/O and power management.
+	 * Set SCI IRQ to IRQ9
+	 */
+	write32(ilb_base + ILB_OIC, 0x100);  /* AEN */
+	reg32 = read32(ilb_base + ILB_OIC);  /* Read back per BWG */
+	write32(ilb_base + ACTL, 0);  /* ACTL bit 2:0 SCIS IRQ9 */
+
+	io_apic_write(VIO_APIC_VADDR, 0x00, (1<<25));
+
+	/* affirm full set of redirection table entries ("write once") */
+	reg32 = io_apic_read(VIO_APIC_VADDR, 0x1);
+	io_apic_write(VIO_APIC_VADDR, 0x1, reg32);
+
+	reg32 = io_apic_read(VIO_APIC_VADDR, 0x0);
+	printk(BIOS_DEBUG, "Southbridge APIC ID = %x\n", (reg32 >> 24) & 0x0f);
+	if (reg32 != (1 << 25))
+		die("APIC Error\n");
+
+	printk(BIOS_SPEW, "Dumping IOAPIC registers\n");
+	for (i = 0; i < 3; i++) {
+		printk(BIOS_SPEW, "  reg 0x%04x:", i);
+		reg32 = io_apic_read(VIO_APIC_VADDR, i);
+		printk(BIOS_SPEW, " 0x%08x\n", reg32);
+	}
+
+	/*
+	 * Select Boot Configuration register (0x03) and
+	 * use Processor System Bus (0x01) to deliver interrupts.
+	 */
+	io_apic_write(VIO_APIC_VADDR, 0x3, 0x1);
 }
 
 /*
@@ -172,6 +216,14 @@ static void sc_init(struct device *dev)
 
 	if (IS_ENABLED(CONFIG_ENABLE_SERIRQ))
 		sc_enable_serial_irqs(dev);
+
+	/* Set the value for PCI command register. */
+	pci_write_config16(dev, PCI_COMMAND,
+		PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
+		PCI_COMMAND_MASTER | PCI_COMMAND_SPECIAL);
+
+	/* IO APIC initialization. */
+	sc_enable_ioapic(dev);
 
 	/* Set up the PIRQ PIC routing based on static config. */
 	for (i = 0; i < NUM_PIRQS; i++)

@@ -1,6 +1,7 @@
 /** @file
 
 Copyright (c) 2016, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2018, Eltan B.V.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
@@ -197,6 +198,7 @@ typedef struct {
     Enable/Disable DDR3 Auto Self Refresh
 **/
   UINT8                       PcdDdr3AutoSelfRefreshEnable;
+/* NOT SUPPORTED BY MR2 START */
 /** Offset 0x0044
     Disable Auto Detect Dram for LPDDR3 memory
     To Enable/Disable AutoDetectDram
@@ -229,6 +231,7 @@ typedef struct {
   UINT8                       PcdRxOdtLimitChannel1;
 /** Offset 0x004A
 **/
+/* NOT SUPPORTED BY MR2 END */
   UINT8                       ReservedMemoryInitUpd[182];
 } MEMORY_INIT_UPD;
 
@@ -485,6 +488,7 @@ typedef struct {
     Check for Sd card detect
 **/
   UINT8                       PcdSdDetectChk;
+/* NOT SUPPORTED BY MR2 START */
 /** Offset 0x0163
 **/
   UINT8                       I2C0Frequency;
@@ -524,6 +528,7 @@ typedef struct {
 /** Offset 0x016F
 **/
   UINT8                       D0VnnBump100mV;
+/* NOT SUPPORTED BY MR2 END */
 /** Offset 0x170
 **/
   UINT8                       ReservedSiliconInitUpd[398];
@@ -558,13 +563,27 @@ typedef struct _UPD_DATA_REGION {
 /** Offset 0x0100
 **/
   SILICON_INIT_UPD            SiliconInitUpd;
-/** Offset 0x0305
+/** Offset 0x02FE
 **/
   UINT16                      PcdRegionTerminator;
+#if IS_ENABLED(CONFIG_USE_BSWSBFSP)
+/** Offset 0x0300
+**/
+  UINT8                       UnusedUpdSpace4[2123];
+/** Offset 0x0B4B
+**/
+  UINT8                       PcdPaddingSpace;
+#endif //CONFIG_USE_BSWSBFSP
+
 } UPD_DATA_REGION;
 
+#if IS_ENABLED(CONFIG_USE_BSWSBFSP)
+#define FSP_IMAGE_ID    0x5053464253575342        /* 'BSWSBFSP' */
+#define FSP_IMAGE_REV   0x01010401
+#else
 #define FSP_IMAGE_ID    0x2450534657534224        /* '$BSWFSP$' */
 #define FSP_IMAGE_REV   0x01010700
+#endif
 
 typedef struct _VPD_DATA_REGION {
 /** Offset 0x0000
@@ -577,6 +596,16 @@ typedef struct _VPD_DATA_REGION {
 /** Offset 0x000C
 **/
   UINT32                      PcdUpdRegionOffset;
+#if IS_ENABLED(CONFIG_USE_BSWSBFSP)
+/** Offset 0x0010
+**/
+  UINT8                       UnusedVpdSpace0[20];
+/** Offset 0x0024
+    Enable Secure Boot
+    Enable/disable secure boot. Auto by default.
+**/
+  UINT8                       PcdEnableSecureBoot;
+#endif
 } VPD_DATA_REGION;
 
 #pragma pack(pop)

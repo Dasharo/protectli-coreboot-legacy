@@ -130,6 +130,13 @@ config IED_REGION_SIZE
 	hex
 	default 0x400000
 
+config USE_BSWSBFSP
+	bool "Use MR2 FSP"
+	default y
+	help
+	  FSP releases have difference image IDs. Enable this option when
+	  FSP MR2 is used.
+
 config DISABLE_HPET
 	bool "Disable the HPET device"
 	default n

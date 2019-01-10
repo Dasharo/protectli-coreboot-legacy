@@ -40,7 +40,6 @@ config CPU_SPECIFIC_OPTIONS
 	select TSC_MONOTONIC_TIMER
 	select TSC_SYNC_MFENCE
 	select UDELAY_TSC
-	select USE_GENERIC_FSP_CAR_INC
 	select INTEL_DESCRIPTOR_MODE_CAPABLE
 	select HAVE_SPI_CONSOLE_SUPPORT
 	select HAVE_FSP_GOP
@@ -49,12 +48,19 @@ config CPU_SPECIFIC_OPTIONS
 	select INTEL_GMA_SWSMISCI
 	select CPU_INTEL_COMMON
 
+config DCACHE_BSP_STACK_SIZE
+	hex
+	default 0x2000
+	help
+	  The amount of anticipated stack usage in CAR by bootblock and
+	  other stages.
+
+config C_ENV_BOOTBLOCK_SIZE
+	hex
+	default 0x8000
+
 config VBOOT
 	select VBOOT_STARTS_IN_ROMSTAGE
-
-config BOOTBLOCK_CPU_INIT
-	string
-	default "soc/intel/braswell/bootblock/bootblock.c"
 
 config MMCONF_BASE_ADDRESS
 	hex

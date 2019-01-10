@@ -89,7 +89,10 @@ asmlinkage void *cache_as_ram_main(struct cache_as_ram_params *car_params)
 	return cache_as_ram_stage_main(car_params->fih);
 }
 
-/* Entry point taken when romstage is called after a separate verstage. */
+/*
+ * Entry point taken when romstage is called after a separate verstage or
+ * when the C_ENVIRONMENT_BOOTBLOCK is enabled.
+ */
 asmlinkage void *romstage_c_entry(void)
 {
 	/* Need to locate the current FSP_INFO_HEADER. The cache-as-ram

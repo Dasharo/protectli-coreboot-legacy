@@ -1,0 +1,2 @@
+config BOARD_PROTECTLI_VAULT
+	bool "Vault FW2B/FW4B"

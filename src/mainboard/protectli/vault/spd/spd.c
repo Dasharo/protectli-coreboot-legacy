@@ -49,7 +49,7 @@ void mainboard_fill_spd_data(struct pei_data *ps)
 	 *              2=DimmDisabled
 	 */
 	ps->spd_data_ch0 = spd_file;
-	ps->spd_ch0_config = 0;
+	ps->spd_ch0_config = 1;
 	ps->spd_ch1_config = 2;
 
 }

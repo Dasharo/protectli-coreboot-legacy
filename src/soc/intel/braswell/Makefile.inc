@@ -28,13 +28,17 @@ subdirs-y += ../../../cpu/intel/common
 
 bootblock-y += bootblock/cache_as_ram_cbootblock.S
 bootblock-y += bootblock/bootblock_c.c
+bootblock-y += spi.c
+bootblock-y += tsc_freq.c
 
 romstage-y += gpio_support.c
 romstage-y += iosf.c
 romstage-y += lpc_init.c
 romstage-y += memmap.c
 romstage-y += pmutil.c
+romstage-y += spi.c
 romstage-y += tsc_freq.c
+
 
 ramstage-y += acpi.c
 ramstage-y += chip.c

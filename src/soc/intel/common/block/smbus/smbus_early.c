@@ -21,6 +21,8 @@
 #include <soc/pci_devs.h>
 #include "smbuslib.h"
 
+#define PCH_DEV_SMBUS		PCI_DEV(0, 0x1f, 3)
+
 static const struct reg_script smbus_init_script[] = {
 	/* Set SMBus I/O base address */
 	REG_PCI_WRITE32(PCI_BASE_ADDRESS_4, SMBUS_IO_BASE),

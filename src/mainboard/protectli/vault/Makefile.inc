@@ -17,8 +17,9 @@
 
 subdirs-y += spd
 
-romstage-y += com_init.c
-romstage-y += spd.c
+bootblock-y += com_init.c
+
+romstage-y += spd/spd.c
 
 ramstage-y += boardid.c
 ramstage-y += gpio.c
@@ -27,3 +28,5 @@ ramstage-y += ramstage.c
 ramstage-y += hda_verb.c
 
 smm-$(CONFIG_HAVE_SMI_HANDLER) += smihandler.c
+
+SPD_SOURCES = M471B5173DB0-YK0

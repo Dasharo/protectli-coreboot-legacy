@@ -24,9 +24,7 @@
 
 void bootblock_mainboard_early_init(void)
 {
-	ite_reg_write(CLKIN_DEV, 0x2c, 0x41); // bit 6 for unused K8 power seq?
-	ite_reg_write(CLKIN_DEV, 0x26, 0xf3); // disable HW control for COM1
-	ite_enable_3vsbsw(CLKIN_DEV);
-	ite_conf_clkin(CLKIN_DEV, ITE_UART_CLK_PREDIVIDE_48);
+	ite_reg_write(CLKIN_DEV, 0x2c, 0x41); // disable K8 power seq
+	ite_reg_write(CLKIN_DEV, 0x2d, 0x20); // select 25MHz PCICLK
 	ite_enable_serial(SERIAL1_DEV, CONFIG_TTYS0_BASE);
 }

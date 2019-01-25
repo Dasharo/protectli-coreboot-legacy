@@ -118,7 +118,7 @@ chip soc/intel/braswell
 		device pci 1c.1 on end	# 8086 0000 - PCIe Root Port 2
 		device pci 1c.2 on end	# 8086 0000 - PCIe Root Port 3
 		device pci 1c.3 on end	# 8086 0000 - PCIe Root Port 4
-		device pci 1e.0 off end	# 8086 2286 - SIO - DMA
+		device pci 1e.0 on end	# 8086 2286 - SIO - DMA
 		device pci 1e.1 off end	# 8086 0F08 -   PWM 1
 		device pci 1e.2 off end	# 8086 0F09 -   PWM 2
 		device pci 1e.3 off end	# 8086 228a -   HSUART 1
@@ -133,28 +133,15 @@ chip soc/intel/braswell
 					io 0x60 = 0x3f8
 					irq 0x70 = 4
 				end
-				device pnp 2e.2 off	# COM 2
-					io 0x60 = 0x2f8
-					irq 0x70 = 3
-				end
-				device pnp 2e.3 off	# Printer Port
-					io 0x60 = 0x378
-					io 0x62 = 0x778
-					irq 0x70 = 5
-					drq 0x74 = 3
-					irq 0xf0 = 0x0b
-				end
 				device pnp 2e.4 off	# Environment Controller
 				end
 				device pnp 2e.5 off	# Keyboard
-					io 0x60 = 0x60
-					io 0x62 = 0x64
-					irq 0x70 = 1
 				end
 				device pnp 2e.6 off	# Mouse
-					irq 0x70 = 12
 				end
 				device pnp 2e.7 off	# GPIO
+				end
+				device pnp 2e.a off	# CIR
 				end
 			end
 		end

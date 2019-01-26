@@ -14,6 +14,7 @@
  * GNU General Public License for more details.
  */
 
+#include <assert.h>
 #include <cbfs.h>
 #include <cbmem.h>
 #include <console/console.h>
@@ -29,26 +30,20 @@
 /* Copy SPD data for on-board memory */
 void mainboard_fill_spd_data(struct pei_data *ps)
 {
-	char *spd_file;
-	size_t spd_file_len;
+	struct spd_block blk = {
+		.addr_map = { 0x50 },
+	};
 
-	/* Find the SPD data in CBFS. */
-	spd_file = cbfs_boot_map_with_leak("spd.bin", CBFS_TYPE_SPD,
-		&spd_file_len);
-
-	if (!spd_file)
-		die("SPD data not found.");
-
-	if (spd_file_len < SPD_PAGE_LEN)
-		die("Missing SPD data.");
-
+	get_spd_smbus(&blk);
+	dump_spd_info(&blk);
+	assert(blk.spd_array[0][0] != 0);
 	/*
 	 * Set SPD and memory configuration:
 	 * Memory type: 0=DimmInstalled,
 	 *              1=SolderDownMemory,
 	 *              2=DimmDisabled
 	 */
-	ps->spd_data_ch0 = spd_file;
+	ps->spd_data_ch0 = blk.spd_array[0];
 	ps->spd_ch0_config = 1;
 	ps->spd_ch1_config = 2;
 

@@ -208,7 +208,7 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	NATIVE_PU20K(1),	/* 01 FST_SPI_D0 */
 	NATIVE_PU20K(1),	/* 02 FST_SPI_CLK */
 	NATIVE_PU20K(1),	/* 03 FST_SPI_D3 */
-	GPO_FUNC(9, 1),		/* 04 FST_SPI_CS1_B */
+	GPO_FUNC(P_20K_H, 1),	/* 04 FST_SPI_CS1_B */
 	NATIVE_PU20K(1),	/* 05 FST_SPI_D1 */
 	NATIVE_PU20K(1),	/* 06 FST_SPI_CS0_B */
 	GPIO_OUTPUT_PD_5K,	/* 07 FST_SPI_CS2_B */
@@ -232,7 +232,7 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	GPIO_NC,		/* 15 UART1_RTS_B */
 	GPIO_NC,		/* 16 UART1_RXD */
 	GPIO_NC,		/* 17 UART2_RXD */
-	NATIVE_PU20K(1),	/* 18 UART1_CTS_B */
+	GPIO_NC,		/* 18 UART1_CTS_B */
 	GPIO_NC,		/* 19 UART2_RTS_B */
 	GPIO_NC,		/* 20 UART1_TXD */
 	GPIO_NC,		/* 21 UART2_TXD */
@@ -260,7 +260,7 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	NATIVE_PD20K(2),	/* 33 MF_HDA_SDO */
 	GPIO_NC,		/* 34 MF_HDA_DOCKRSTB */
 	NATIVE_PD20K(2),	/* 35 MF_HDA_SYNC */
-	GPIO_NC,		/* 36 GPIO_SW36 MF_HDA_SDI1 */
+	NATIVE_PD20K(2),	/* 36 GPIO_SW36 MF_HDA_SDI1 */
 	GPIO_NC,		/* 37 MF_HDA_DOCKENB */
 
 	/*SW30 { .pad_conf0 = 0x00120301, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
@@ -282,10 +282,10 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	GPIO_NC,			/* 46 I2C4_SDA */
 	GPIO_NC,			/* 47 I2C6_SDA */
 	GPIO_NC,			/* 48 I2C5_SCL */
-	NATIVE_PU20K_INVTX(1),		/* 49 I2C_NFC_SDA */
+	NATIVE_FUNC(1, P_20K_H, inv_tx_enable),		/* 49 I2C_NFC_SDA */
 	GPIO_NC,			/* 50 I2C4_SCL */
 	GPIO_NC,			/* 51 I2C6_SCL */
-	NATIVE_PU20K_INVTX(1),		/* 52 I2C_NFC_SCL */
+	NATIVE_FUNC(1, P_20K_H, inv_tx_enable),		/* 52 I2C_NFC_SCL */
 
 	/*SW45 { .pad_conf0 = 0x00C10301, .pad_conf1 = 0x05C00020, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*SW46 { .pad_conf0 = 0x00C10300, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
@@ -414,14 +414,14 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	// FED8C860: 00 81 11 00 00 00 C0 05-FF FF FF FF FF FF FF FF
 	// */
 	GPI(PAD_TRIG_EDGE_LOW,L8,P_20K_L,non_maskable,en_edge_rx_data,UNMASK_WAKE,SCI),	/* 15 GPIO_SUS0 */
-	GPIO_NC,		/* 16 SEC_GPIO_SUS10 */
+	GPIO_OUTPUT_PD_20K,	/* 16 SEC_GPIO_SUS10 */
 	NATIVE_PD20K(1),	/* 17 GPIO_SUS3 */
 	GPI(PAD_TRIG_EDGE_LOW,L15,P_20K_H,non_maskable,en_edge_rx_data,NA,SMI),	/* 18 GPIO_SUS7 */
 	NATIVE_PD20K(1),	/* 19 GPIO_SUS1 */
 	GPIO_INPUT_PU_20K,	/* 20 GPIO_SUS5 */
-	GPI(PAD_TRIG_EDGE_HIGH,L2,P_20K_L,non_maskable,en_edge_rx_data,NA,GPE),	/* 21 SEC_GPIO_SUS11 */
+	GPI(PAD_TRIG_EDGE_HIGH,L2,P_20K_L,non_maskable,en_edge_rx_data,NA,NA),	/* 21 SEC_GPIO_SUS11 */
 	NATIVE_PU20K(1),	/* 22 GPIO_SUS4 */
-	GPI(PAD_TRIG_EDGE_LEVEL,L3,P_20K_H,non_maskable,en_rx_data,NA,GPE),	/* 23 SEC_GPIO_SUS8 */
+	GPI(PAD_TRIG_EDGE_LEVEL,L3,P_20K_H,non_maskable,en_rx_data,NA,NA),	/* 23 SEC_GPIO_SUS8 */
 	NATIVE_PU20K(1),	/* 24 GPIO_SUS2 */
 	GPI(PAD_TRIG_EDGE_LOW,L14,P_20K_H,non_maskable,en_edge_rx_data,NA,SCI),	/* 25 GPIO_SUS6 */
 	NATIVE_PU5K(1),		/* 26 CX_PREQ_B */
@@ -454,15 +454,15 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	// */
 	NATIVE_PU5K(1),		/* 30 TRST_B */
 	NATIVE_PD5K(1),		/* 31 TCK */
-	Native_M1,		/* 32 PROCHOT_B */
-	//Native_M1,		/* 33 SVID0_DATA */
+	GPIO_SKIP,		/* 32 PROCHOT_B */
+	GPIO_SKIP,		/* 33 SVID0_DATA */
 	NATIVE_PU5K(1),		/* 34 TMS */
 	NATIVE_PU5K(1),		/* 35 CX_PRDY_B_2 */
 	Native_M1,		/* 36 TDO_2 */
 	GPIO_NC,		/* 37 CX_PRDY_B */
-	NATIVE_FUNC(1, 0, 2),	/* 38 SVID0_ALERT_B */
+	GPIO_SKIP,		/* 38 SVID0_ALERT_B */
 	Native_M1,		/* 39 TDO */
-	NATIVE_FUNC(1, 0, 2),	/* 40 SVID0_CLK */
+	GPIO_SKIP,		/* 40 SVID0_CLK */
 	NATIVE_PU5K(1),		/* 41 TDI */
 
 	/*N30 { .pad_conf0 = 0x00A10300, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */

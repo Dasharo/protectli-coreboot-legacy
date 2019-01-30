@@ -223,6 +223,7 @@
 #define PAD_CONFIG0_DEFAULT0	0x00910300
 #define PAD_CONFIG0_DEFAULT1	0x00110300
 #define PAD_CONFIG0_GPI_DEFAULT	0x00010200
+#define PAD_CONFIG0_GPO_DEFAULT 0x00010100
 
 /* Pad config1 reg power-on values */
 #define PAD_CONFIG1_DEFAULT0	0x05C00000
@@ -248,6 +249,11 @@
 	{ .pad_conf0 = PAD_PULL_DOWN_20K | PAD_GPIO_ENABLE \
 		     | PAD_CONFIG0_GPI_DEFAULT, \
 	  .pad_conf1 = PAD_CONFIG1_DEFAULT0 }
+
+#define GPIO_OUTPUT_PD_20K \
+        { .pad_conf0 = PAD_PULL_DOWN_20K | PAD_GPIO_ENABLE \
+                     | PAD_CONFIG0_GPO_DEFAULT, \
+          .pad_conf1 = PAD_CONFIG1_DEFAULT0 }
 
 #define GPIO_INPUT_PU_5K \
 	{ .pad_conf0 = PAD_PULL_UP_5K | PAD_GPIO_ENABLE \

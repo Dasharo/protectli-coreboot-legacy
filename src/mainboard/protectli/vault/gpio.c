@@ -170,7 +170,7 @@ static const struct soc_gpio_map gpse_gpio_map[] = {
 	// */
 	NATIVE_PU20K(1),	/* 75 USB_OC1_B */
 	NATIVE_PU20K(1),	/* 76 PMU_RESETBUTTON_B */
-	GPIO_NC,		/* 77 GPIO_ALERT   */
+	GPI(trig_level_low, L2, P_20K_H, non_maskable, en_rx_data, NA, NA),	/* 77 GPIO_ALERT   */
 	GPIO_NC,		/* 78 SDMMC3_PWR_EN_B */
 	NATIVE_PU20K(1),	/* 79 ILB_SERIRQ */
 	NATIVE_PU20K(1),	/* 80 USB_OC0_B */
@@ -278,13 +278,13 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	// FED85020: 01 03 91 00 20 00 C0 05-00 03 C1 00 00 00 C0 05
 	// FED85030: 01 03 C1 00 20 00 C0 05-01 03 91 00 20 00 C0 05
 	// */
-	GPIO_NC,			/* 45 I2C5_SDA */
-	GPIO_NC,			/* 46 I2C4_SDA */
-	GPIO_NC,			/* 47 I2C6_SDA */
-	GPIO_NC,			/* 48 I2C5_SCL */
+	NATIVE_PU1K_INVTX(1),		/* 45 I2C5_SDA */
+	NATIVE_PU1K(1),			/* 46 I2C4_SDA */
+	NATIVE_PU1K_INVTX(1),		/* 47 I2C6_SDA */
+	NATIVE_PU1K_INVTX(1),		/* 48 I2C5_SCL */
 	NATIVE_FUNC(1, P_20K_H, inv_tx_enable),		/* 49 I2C_NFC_SDA */
-	GPIO_NC,			/* 50 I2C4_SCL */
-	GPIO_NC,			/* 51 I2C6_SCL */
+	NATIVE_PU1K(1),			/* 50 I2C4_SCL */
+	NATIVE_PU1K_INVTX(1),		/* 51 I2C6_SCL */
 	NATIVE_FUNC(1, P_20K_H, inv_tx_enable),		/* 52 I2C_NFC_SCL */
 
 	/*SW45 { .pad_conf0 = 0x00C10301, .pad_conf1 = 0x05C00020, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
@@ -302,14 +302,14 @@ static const struct soc_gpio_map  gpsw_gpio_map[] = {
 	// FED85420: 01 03 C1 00 20 00 C0 05-01 03 C1 00 20 00 C0 05
 	// FED85430: 01 03 C1 00 20 00 C0 05-01 03 C1 00 20 00 C0 05
 	// */
-	GPIO_NC,			/* 60 I2C1_SDA */
-	GPIO_NC,			/* 61 I2C0_SDA */
-	GPIO_NC,			/* 62 I2C2_SDA */
-	GPIO_NC,			/* 63 I2C1_SCL */
-	GPIO_NC,			/* 64 I2C3_SDA */
-	GPIO_NC,			/* 65 I2C0_SCL */
-	GPIO_NC,			/* 66 I2C2_SCL */
-	GPIO_NC,			/* 67 I2C3_SCL */
+	NATIVE_PU1K_INVTX(1),		/* 60 I2C1_SDA */
+	NATIVE_PU1K_INVTX(1),		/* 61 I2C0_SDA */
+	NATIVE_PU1K_INVTX(1),		/* 62 I2C2_SDA */
+	NATIVE_PU1K_INVTX(1),		/* 63 I2C1_SCL */
+	NATIVE_PU1K_INVTX(1),		/* 64 I2C3_SDA */
+	NATIVE_PU1K_INVTX(1),		/* 65 I2C0_SCL */
+	NATIVE_PU1K_INVTX(1),		/* 66 I2C2_SCL */
+	NATIVE_PU1K_INVTX(1),		/* 67 I2C3_SCL */
 
 	/*SW60 { .pad_conf0 = 0x00C10301, .pad_conf1 = 0x05C00020, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*SW61 { .pad_conf0 = 0x00C10301, .pad_conf1 = 0x05C00020, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
@@ -526,7 +526,7 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	// FED8D460: 02 81 01 00 00 00 C0 05-FF FF FF FF FF FF FF FF
 	// */
 	GPIO_OUT_HIGH,		/* 60 PANEL0_BKLTEN */
-	NATIVE_FUNC_TX_RX(3, 1, NA, inv_tx_enable),		/* 61 HV_DDI0_HPD */
+	Native_M1,		/* 61 HV_DDI0_HPD */
 	NATIVE_PU20K(1),	/* 62 HV_DDI2_DDC_SDA */
 	Native_M1,		/* 63 PANEL1_BKLTCTL */
 	Native_M1,		/* 64 HV_DDI1_HPD */
@@ -603,7 +603,7 @@ static const struct soc_gpio_map  gpe_gpio_map[] = {
 	// FED94850: 00 03 11 00 00 00 C0 05-00 03 91 00 00 00 C0 05
 	// */
 	NATIVE_PD20K(1),	/* 15 MF_GPIO_3 */
-	// GPIO_NC,		/* 16 MF_GPIO_7 */
+	GPO_FUNC(P_20K_L, 1),	/* 16 MF_GPIO_7 */
 	NATIVE_PU20K(1),	/* 17 MF_I2C1_SCL */
 	NATIVE_PD20K(1),	/* 18 MF_GPIO_1 */
 	GPO_FUNC(P_20K_L, 0),	/* 19 MF_GPIO_5 */
@@ -616,7 +616,7 @@ static const struct soc_gpio_map  gpe_gpio_map[] = {
 	NATIVE_PU20K(1),	/* 26 MF_I2C1_SDA */
 
 	/*E15 { .pad_conf0 = 0x00110300, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
-	/*E16 */ { .pad_conf0 = 0x00118003, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 },
+	/*E16  { .pad_conf0 = 0x00118003, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*E17 { .pad_conf0 = 0x00910303, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*E18 { .pad_conf0 = 0x00110300, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*E19 { .pad_conf0 = 0x00118000, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */

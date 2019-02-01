@@ -1,4 +1,4 @@
-if BOARD_PROTECTLI_VAULT
+if BOARD_PROTECTLI_FW2B || BOARD_PROTECTLI_FW4B
 
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
@@ -19,9 +19,19 @@ config MAINBOARD_DIR
 	string
 	default protectli/vault
 
+config VARIANT_DIR
+	string
+	default "fw2b" if BOARD_PROTECTLI_FW2B
+	default "fw4b" if BOARD_PROTECTLI_FW4B
+
+config DEVICETREE
+	string
+	default "variants/$(CONFIG_VARIANT_DIR)/devicetree.cb"
+
 config MAINBOARD_PART_NUMBER
 	string
-	default "Vault FW2B/FW4B"
+        default "fw2b" if BOARD_PROTECTLI_FW2B
+        default "fw4b" if BOARD_PROTECTLI_FW4B
 
 config MAINBOARD_VENDOR
 	string
@@ -49,4 +59,4 @@ config VGA_BIOS_ID
 
 endif #GOP_SUPPORT
 
-endif # BOARD_SOLIDRUN_SOLIDPC
+endif # BOARD_PROTECTLI_FW2B

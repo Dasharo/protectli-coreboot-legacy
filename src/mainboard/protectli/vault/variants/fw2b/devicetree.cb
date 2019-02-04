@@ -116,8 +116,8 @@ chip soc/intel/braswell
 		device pci 1b.0 on end	# 8086 0F04 - HD Audio
 		device pci 1c.0 on end	# 8086 0000 - PCIe Root Port 1
 		device pci 1c.1 on end	# 8086 0000 - PCIe Root Port 2
-		device pci 1c.2 on end	# 8086 0000 - PCIe Root Port 3
-		device pci 1c.3 on end	# 8086 0000 - PCIe Root Port 4
+		device pci 1c.2 off end	# 8086 0000 - PCIe Root Port 3
+		device pci 1c.3 off end	# 8086 0000 - PCIe Root Port 4
 		device pci 1e.0 on end	# 8086 2286 - SIO - DMA
 		device pci 1e.1 off end	# 8086 0F08 -   PWM 1
 		device pci 1e.2 off end	# 8086 0F09 -   PWM 2

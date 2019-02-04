@@ -202,7 +202,9 @@ static void enable_fan(const u16 base, const u8 fan,
 		ite_ec_write(base, ITE_EC_ADC_TEMP_EXTRA_CHANNEL_ENABLE, reg);
 	}
 
-	if (conf->mode >= FAN_SMART_SOFTWARE) {
+	/* IT8613E always works in SmartGuardian mode */
+	if (IS_ENABLED(CONFIG_SUPERIO_ITE_IT8613E)
+	    || conf->mode >= FAN_SMART_SOFTWARE) {
 		fan_smartconfig(base, fan, conf->mode, &conf->smart);
 	} else {
 		reg = ite_ec_read(base, ITE_EC_FAN_CTL_MODE);
@@ -220,16 +222,27 @@ static void enable_fan(const u16 base, const u8 fan,
 		ite_ec_write(base, ITE_EC_FAN_TAC_COUNTER_ENABLE, reg);
 	}
 
-	reg = ite_ec_read(base, ITE_EC_FAN_MAIN_CTL);
-	if (conf->mode >= FAN_MODE_ON)
-		reg |= ITE_EC_FAN_MAIN_CTL_TAC_EN(fan);
-	else
-		reg &= ~ITE_EC_FAN_MAIN_CTL_TAC_EN(fan);
-	if (conf->mode >= FAN_SMART_SOFTWARE)
-		reg |= ITE_EC_FAN_MAIN_CTL_SMART(fan);
-	else
-		reg &= ~ITE_EC_FAN_MAIN_CTL_SMART(fan);
-	ite_ec_write(base, ITE_EC_FAN_MAIN_CTL, reg);
+	if (IS_ENABLED(CONFIG_SUPERIO_ITE_IT8613E) && fan > 3) {
+		reg = ite_ec_read(base, ITE_EC_FAN_SEC_CTL);
+		if (conf->mode >= FAN_MODE_ON)
+			reg |= ITE_EC_FAN_SEC_CTL_TAC_EN(fan);
+		else
+			reg &= ~ITE_EC_FAN_SEC_CTL_TAC_EN(fan);
+		ite_ec_write(base, ITE_EC_FAN_SEC_CTL, reg);
+	} else {
+		reg = ite_ec_read(base, ITE_EC_FAN_MAIN_CTL);
+		if (conf->mode >= FAN_MODE_ON)
+			reg |= ITE_EC_FAN_MAIN_CTL_TAC_EN(fan);
+		else
+			reg &= ~ITE_EC_FAN_MAIN_CTL_TAC_EN(fan);
+		if (IS_ENABLED(CONFIG_SUPERIO_ITE_IT8613E) == 0) {
+			if (conf->mode >= FAN_SMART_SOFTWARE)
+				reg |= ITE_EC_FAN_MAIN_CTL_SMART(fan);
+			else
+				reg &= ~ITE_EC_FAN_MAIN_CTL_SMART(fan);
+		}
+		ite_ec_write(base, ITE_EC_FAN_MAIN_CTL, reg);
+	}
 }
 
 static void enable_beeps(const u16 base, const struct ite_ec_config *const conf)

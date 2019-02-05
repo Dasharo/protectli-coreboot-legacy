@@ -385,7 +385,7 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	// FED8C440: 00 03 98 00 00 00 C0 05-FF FF FF FF FF FF FF FF
 	//*/
 	NATIVE_PD20K(5),	/* 00 GPIO_DFX0 */
-	NATIVE_FUNC(1, P_20K_L, 0),	/* 01 GPIO_DFX3 */
+	NATIVE_FUNC(5, P_20K_L, 0),	/* 01 GPIO_DFX3 */
 	GPIO_INPUT_PU_20K,	/* 02 GPIO_DFX7 */
 	NATIVE_PD20K(5),	/* 03 GPIO_DFX1 */
 	GPIO_NC,		/* 04 GPIO_DFX5 */
@@ -414,7 +414,7 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	// FED8C860: 00 81 11 00 00 00 C0 05-FF FF FF FF FF FF FF FF
 	// */
 	GPI(PAD_TRIG_EDGE_LOW,L8,P_20K_L,non_maskable,en_edge_rx_data,UNMASK_WAKE,SCI),	/* 15 GPIO_SUS0 */
-	GPIO_OUTPUT_PD_20K,	/* 16 SEC_GPIO_SUS10 */
+	GPO_FUNC(P_20K_L, 1),	/* 16 SEC_GPIO_SUS10 */
 	NATIVE_PD20K(1),	/* 17 GPIO_SUS3 */
 	GPI(PAD_TRIG_EDGE_LOW,L15,P_20K_H,non_maskable,en_edge_rx_data,NA,SMI),	/* 18 GPIO_SUS7 */
 	NATIVE_PD20K(1),	/* 19 GPIO_SUS1 */
@@ -468,14 +468,14 @@ static const struct soc_gpio_map  gpn_gpio_map[] = {
 	/*N30 { .pad_conf0 = 0x00A10300, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*N31 { .pad_conf0 = 0x00210300, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*N32 { .pad_conf0 = 0x00010301, .pad_conf1 = 0x05C00060, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
-	/*N33 */ { .pad_conf0 = 0x00010301, .pad_conf1 = 0x15C00008, .wake_mask = 0, .int_mask = 0, .gpe = 0 },
+	/*N33 { .pad_conf0 = 0x00010301, .pad_conf1 = 0x15C00008, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*N34 { .pad_conf0 = 0x00A10301, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*N35 { .pad_conf0 = 0x00A10301, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*N36 { .pad_conf0 = 0x00010300, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*N37 { .pad_conf0 = 0x00A10301, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*N38 { .pad_conf0 = 0x00010301, .pad_conf1 = 0x15C00040, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*N39 { .pad_conf0 = 0x00010301, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
-	/*N40 */ { .pad_conf0 = 0x00010301, .pad_conf1 = 0x15C00008, .wake_mask = 0, .int_mask = 0, .gpe = 0 },
+	/*N40 { .pad_conf0 = 0x00010301, .pad_conf1 = 0x15C00008, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 	/*N41 { .pad_conf0 = 0x00A10301, .pad_conf1 = 0x05C00000, .wake_mask = 0, .int_mask = 0, .gpe = 0 }, */
 
 

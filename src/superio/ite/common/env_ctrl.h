@@ -53,7 +53,7 @@
 #define ITE_EC_FAN_TAC_COUNTER_ENABLE		0x0c
 #define   ITE_EC_FAN_TAC_16BIT_ENABLE(x)	(1 << ((x)-1))
 
-#if IS_ENABLED(CONFIG_SUPERIO_ITE_IT8613E)
+#if IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_5FANS)
 #define ITE_EC_FAN_SEC_CTL			0x0c
 #define   ITE_EC_FAN_SEC_CTL_TAC_EN(x)		(1 << (x))
 #define ITE_EC_FAN_TAC_LIMIT(x)			\
@@ -91,7 +91,7 @@
 #define   ITE_EC_FAN_PWM_MIN_DUTY_20		(1 << 3)
 #define   ITE_EC_FAN_CTL_ON(x)			(1 << ((x)-1))
 
-#if IS_ENABLED(CONFIG_SUPERIO_ITE_IT8613E)
+#if IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_5FANS)
 #define ITE_EC_FAN_CTL_PWM_CONTROL(x)		\
 	  ({					\
 		(x > 3)				\
@@ -150,40 +150,40 @@ static const u8 ITE_EC_TEMP_ADJUST[] = { 0x56, 0x57, 0x59 };
 #define   ITE_EC_BEEP_TONE_DIVISOR(x)		(((x) & 0x0f) << 4)
 #define   ITE_EC_BEEP_FREQ_DIVISOR(x)		(((x) & 0x0f) << 0)
 
-#if IS_ENABLED(CONFIG_SUPERIO_ITE_IT8613E)
+#if IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_5FANS)
 #define ITE_EC_FAN_CTL_TEMP_LIMIT_OFF(x)	\
 	  ({					\
-		(x > 4)				\
+		(x == 5)			\
 			? (0xa0)		\
 			: (0x60 + ((x)-1) * 8);	\
 	  })
 #define ITE_EC_FAN_CTL_TEMP_LIMIT_START(x)	\
 	  ({					\
-		(x > 4)				\
+		(x == 5)			\
 			? (0xa1)		\
 			: (0x61 + ((x)-1) * 8);	\
 	  })
 #define ITE_EC_FAN_CTL_TEMP_LIMIT_FULL(x)	\
 	  ({					\
-		(x > 4)				\
+		(x == 5)			\
 			? (0xa2)		\
 			: (0x62 + ((x)-1) * 8);	\
 	  })
 #define ITE_EC_FAN_CTL_PWM_START(x)		\
 	  ({					\
-		(x > 4)				\
+		(x == 5)			\
 			? (0xa3)		\
 			: (0x63 + ((x)-1) * 8);	\
 	  })
 #define ITE_EC_FAN_CTL_PWM_AUTO(x)		\
 	  ({					\
-		(x > 4)				\
+		(x == 5)			\
 			? (0xa4)		\
 			: (0x64 + ((x)-1) * 8);	\
 	  })
 #define ITE_EC_FAN_CTL_DELTA_TEMP(x)		\
 	  ({					\
-		(x > 4)				\
+		(x == 5)			\
 			? (0xa5)		\
 			: (0x65 + ((x)-1) * 8);	\
 	  })

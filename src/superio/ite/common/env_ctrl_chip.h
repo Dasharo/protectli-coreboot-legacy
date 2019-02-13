@@ -19,7 +19,12 @@
 #define SUPERIO_ITE_ENV_CTRL_CHIP_H
 
 #define ITE_EC_TMPIN_CNT	3
+
+#if IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_5FANS)
+#define ITE_EC_FAN_CNT		5
+#else
 #define ITE_EC_FAN_CNT		3
+#endif
 
 /* Supported thermal mode on TMPINx */
 enum ite_ec_thermal_mode {
@@ -105,5 +110,9 @@ struct ite_ec_config {
 #define FAN1	ec.fan[0]
 #define FAN2	ec.fan[1]
 #define FAN3	ec.fan[2]
+#if IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_5FANS)
+#define FAN4	ec.fan[3]
+#define FAN5	ec.fan[4]
+#endif
 
 #endif /* SUPERIO_ITE_ENV_CTRL_CHIP_H */

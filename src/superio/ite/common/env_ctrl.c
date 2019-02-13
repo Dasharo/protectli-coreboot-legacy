@@ -191,7 +191,9 @@ static void enable_fan(const u16 base, const u8 fan,
 {
 	u8 reg;
 
-	if (conf->mode == FAN_IGNORE)
+	if (conf->mode == FAN_IGNORE ||
+	  (IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_NO_ONOFF) &&
+	    conf->mode <= FAN_MODE_OFF))
 		return;
 
 	/* FAN_CTL2 might have its own frequency setting */
@@ -202,9 +204,7 @@ static void enable_fan(const u16 base, const u8 fan,
 		ite_ec_write(base, ITE_EC_ADC_TEMP_EXTRA_CHANNEL_ENABLE, reg);
 	}
 
-	/* IT8613E always works in SmartGuardian mode */
-	if (IS_ENABLED(CONFIG_SUPERIO_ITE_IT8613E)
-	    || conf->mode >= FAN_SMART_SOFTWARE) {
+	if (conf->mode >= FAN_SMART_SOFTWARE) {
 		fan_smartconfig(base, fan, conf->mode, &conf->smart);
 	} else {
 		reg = ite_ec_read(base, ITE_EC_FAN_CTL_MODE);
@@ -215,14 +215,14 @@ static void enable_fan(const u16 base, const u8 fan,
 		ite_ec_write(base, ITE_EC_FAN_CTL_MODE, reg);
 	}
 
-	if (IS_ENABLED(SUPERIO_ITE_ENV_CTRL_FAN16_CONFIG)
+	if (IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_FAN16_CONFIG)
 	    && conf->mode >= FAN_MODE_ON) {
 		reg = ite_ec_read(base, ITE_EC_FAN_TAC_COUNTER_ENABLE);
 		reg |= ITE_EC_FAN_TAC_16BIT_ENABLE(fan);
 		ite_ec_write(base, ITE_EC_FAN_TAC_COUNTER_ENABLE, reg);
 	}
 
-	if (IS_ENABLED(CONFIG_SUPERIO_ITE_IT8613E) && fan > 3) {
+	if (IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_5FANS) && fan > 3) {
 		reg = ite_ec_read(base, ITE_EC_FAN_SEC_CTL);
 		if (conf->mode >= FAN_MODE_ON)
 			reg |= ITE_EC_FAN_SEC_CTL_TAC_EN(fan);
@@ -235,7 +235,9 @@ static void enable_fan(const u16 base, const u8 fan,
 			reg |= ITE_EC_FAN_MAIN_CTL_TAC_EN(fan);
 		else
 			reg &= ~ITE_EC_FAN_MAIN_CTL_TAC_EN(fan);
-		if (IS_ENABLED(CONFIG_SUPERIO_ITE_IT8613E) == 0) {
+
+		/* Some ITEs have SmartGuardian always enabled */
+		if (IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_NO_ONOFF) == 0) {
 			if (conf->mode >= FAN_SMART_SOFTWARE)
 				reg |= ITE_EC_FAN_MAIN_CTL_SMART(fan);
 			else

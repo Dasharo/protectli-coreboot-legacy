@@ -15,6 +15,7 @@
  */
 
 #include <arch/acpi.h>
+#include <arch/io.h>
 #include <cbmem.h>
 #include <cf9_reset.h>
 #include <console/console.h>
@@ -25,6 +26,33 @@
 #include <string.h>
 #include <timestamp.h>
 #include <security/vboot/vboot_common.h>
+
+/* Beep function */
+
+static void beep(unsigned int frequency)
+{
+
+	unsigned int count = 1193180 / frequency;
+
+	// Switch on the speaker
+	outb(inb(0x61)|3, 0x61);
+
+	// Set command for counter 2, 2 byte write
+	outb(0xB6, 0x43);
+
+	// Select desired Hz
+	outb(count & 0xff, 0x42);
+	outb((count >> 8) & 0xff, 0x42);
+
+	// Block for 100 microseconds
+	int i;
+	for (i = 0; i < 100000; i++) inb(0x61);
+
+	// Switch off the speaker
+	outb(inb(0x61)&0xFC, 0x61);
+}
+
+void __weak mainboard_configure_serial_after_raminit(void) { }
 
 void raminit(struct romstage_params *params)
 {
@@ -127,6 +155,10 @@ void raminit(struct romstage_params *params)
 	status = fsp_memory_init(&fsp_memory_init_params);
 	post_code(0x37);
 	timestamp_add_now(TS_FSP_MEMORY_INIT_END);
+
+	mainboard_configure_serial_after_raminit();
+
+	beep(2500);
 
 	printk(BIOS_DEBUG, "FspMemoryInit returned 0x%08x\n", status);
 	if (status != EFI_SUCCESS)

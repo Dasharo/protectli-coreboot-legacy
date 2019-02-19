@@ -91,5 +91,6 @@ void soc_pre_ram_init(struct romstage_params *params);
 /* Update the SOC specific memory config param for mma. */
 void soc_update_memory_params_for_mma(MEMORY_INIT_UPD *memory_cfg,
 		struct mma_config_param *mma_cfg);
+void mainboard_configure_serial_after_raminit(void);
 
 #endif /* _COMMON_ROMSTAGE_H_ */

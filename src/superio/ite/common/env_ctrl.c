@@ -237,7 +237,7 @@ static void enable_fan(const u16 base, const u8 fan,
 			reg &= ~ITE_EC_FAN_MAIN_CTL_TAC_EN(fan);
 
 		/* Some ITEs have SmartGuardian always enabled */
-		if (IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_NO_ONOFF) == 0) {
+		if (!IS_ENABLED(CONFIG_SUPERIO_ITE_ENV_CTRL_NO_ONOFF)) {
 			if (conf->mode >= FAN_SMART_SOFTWARE)
 				reg |= ITE_EC_FAN_MAIN_CTL_SMART(fan);
 			else

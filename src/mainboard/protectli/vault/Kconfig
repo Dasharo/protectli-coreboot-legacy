@@ -41,6 +41,11 @@ config DIMM_MAX
 	int
 	default 1
 
+config MAX_CPUS
+	int
+	default 2 if BOARD_PROTECTLI_FW2B
+	default 4 if BOARD_PROTECTLI_FW4B
+
 if !RUN_FSP_GOP
 config VGA_BIOS_FILE
 	string

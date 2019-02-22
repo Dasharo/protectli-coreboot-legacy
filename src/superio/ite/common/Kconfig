@@ -41,4 +41,13 @@ config SUPERIO_ITE_ENV_CTRL_PWM_FREQ2
 	help
 	  The second FAN controller has a separate frequency setting.
 
+config SUPERIO_ITE_ENV_CTRL_NO_ONOFF
+	bool
+	help
+	  FAN controller always works in SmartGuardian mode
+
+config SUPERIO_ITE_ENV_CTRL_5FANS
+	bool
+	help
+	  ITE FAN controller has 5 independent outputs
 endif

@@ -321,9 +321,6 @@ static void sc_init(struct device *dev)
 	printk(BIOS_SPEW, "%s/%s (%s)\n",
 			__FILE__, __func__, dev_name(dev));
 
-	if (IS_ENABLED(CONFIG_ENABLE_SERIRQ))
-		sc_enable_serial_irqs(dev);
-
 	/* Set the value for PCI command register. */
 	pci_write_config16(dev, PCI_COMMAND,
 		PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
@@ -331,6 +328,9 @@ static void sc_init(struct device *dev)
 
 	/* IO APIC initialization. */
 	sc_enable_ioapic(dev);
+
+	if (IS_ENABLED(CONFIG_ENABLE_SERIRQ))
+		sc_enable_serial_irqs(dev);
 
 	isa_dma_init();
 

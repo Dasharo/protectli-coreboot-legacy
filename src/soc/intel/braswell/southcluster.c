@@ -216,6 +216,7 @@ static inline int io_range_in_default(int base, int size)
 
 static void sc_enable_ioapic(struct device *dev)
 {
+	int i;
 	u32 reg32;
 	u8 *ilb_base = (u8 *)(pci_read_config32(dev, IBASE) & ~0x0f);
 
@@ -227,11 +228,29 @@ static void sc_enable_ioapic(struct device *dev)
 	reg32 = read32(ilb_base + ILB_OIC);  /* Read back per BWG */
 	write32(ilb_base + ACTL, 0);  /* ACTL bit 2:0 SCIS IRQ9 */
 
+	io_apic_write(VIO_APIC_VADDR, 0x00, (1<<25));
+
 	/* affirm full set of redirection table entries ("write once") */
 	reg32 = io_apic_read(VIO_APIC_VADDR, 0x1);
 	io_apic_write(VIO_APIC_VADDR, 0x1, reg32);
 
-	setup_ioapic((void *) IO_APIC_ADDR, 1);
+	reg32 = io_apic_read(VIO_APIC_VADDR, 0x0);
+	printk(BIOS_DEBUG, "Southbridge APIC ID = %x\n", (reg32 >> 24) & 0x0f);
+	if (reg32 != (1 << 25))
+		die("APIC Error\n");
+
+	printk(BIOS_SPEW, "Dumping IOAPIC registers\n");
+	for (i = 0; i < 3; i++) {
+		printk(BIOS_SPEW, "  reg 0x%04x:", i);
+		reg32 = io_apic_read(VIO_APIC_VADDR, i);
+		printk(BIOS_SPEW, " 0x%08x\n", reg32);
+	}
+
+	/*
+	 * Select Boot Configuration register (0x03) and
+	 * use Processor System Bus (0x01) to deliver interrupts.
+	 */
+	io_apic_write(VIO_APIC_VADDR, 0x3, 0x1);
 }
 
 /*

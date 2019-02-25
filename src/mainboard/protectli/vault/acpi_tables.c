@@ -62,7 +62,7 @@ unsigned long acpi_fill_madt(unsigned long current)
 
 	/* IOAPIC */
 	current += acpi_create_madt_ioapic((acpi_madt_ioapic_t *) current,
-				1, IO_APIC_ADDR, 0);
+				2, IO_APIC_ADDR, 0);
 
 	current = acpi_madt_irq_overrides(current);
 

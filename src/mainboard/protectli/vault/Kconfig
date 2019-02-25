@@ -14,7 +14,6 @@ config BOARD_SPECIFIC_OPTIONS
 	select SOC_INTEL_COMMON_BLOCK
 	select SOC_INTEL_COMMON_BLOCK_SMBUS
 
-
 config MAINBOARD_DIR
 	string
 	default protectli/vault
@@ -45,6 +44,11 @@ config MAX_CPUS
 	int
 	default 2 if BOARD_PROTECTLI_FW2B
 	default 4 if BOARD_PROTECTLI_FW4B
+
+config PXE_ROM_ID
+	string
+	default "8086,1539" if BOARD_PROTECTLI_FW2B
+	default "8086,157b" if BOARD_PROTECTLI_FW4B
 
 if !RUN_FSP_GOP
 config VGA_BIOS_FILE

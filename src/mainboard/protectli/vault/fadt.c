@@ -43,6 +43,13 @@ void acpi_create_fadt(acpi_fadt_t *fadt, acpi_facs_t *facs, void *dsdt)
 
 	acpi_fill_in_fadt(fadt);
 
+	fadt->iapc_boot_arch = ACPI_FADT_LEGACY_DEVICES;
+
+	fadt->pstate_cnt = 0x80;
+	fadt->cst_cnt = 0x85;
+	fadt->p_lvl2_lat = 0x65;
+	fadt->p_lvl3_lat = 0x3e9;
+
 	header->checksum =
 	    acpi_checksum((void *) fadt, header->length);
 }

@@ -66,12 +66,20 @@ chip soc/intel/braswell
 	register "Usb3Lane2Ow2tapgen2deemph3p5" = "0x64"
 	register "Usb3Lane3Ow2tapgen2deemph3p5" = "0x3a"
 	register "PcdSataInterfaceSpeed" = "3"
-	register "PcdPchSsicEnable" = "1"
+	register "PcdPchSsicEnable" = "0"
+	register "PcdPchUsbSsicPort" = "0"
+	register "PcdPchUsbHsicPort" = "0"
 	register "PcdRtcLock" = "0"	# Disable RTC access locking to NVRAM
 	register "PMIC_I2CBus" = "0"
 	register "ISPEnable" = "0"		# Disable IUNIT
 	register "ISPPciDevConfig" = "3"
 	register "PcdSdDetectChk" = "0" # Disable SD card detect
+	# Follow Intel recommendation to set BSW D-stepping PERPORTRXISET 2 (low strength)
+	register "D0Usb2Port0PerPortRXISet" = "2"
+	register "D0Usb2Port1PerPortRXISet" = "2"
+	register "D0Usb2Port2PerPortRXISet" = "2"
+	register "D0Usb2Port3PerPortRXISet" = "2"
+	register "D0Usb2Port4PerPortRXISet" = "2"
 
 	# LPE audio codec settings
 	register "lpe_codec_clk_src" = "LPE_CLK_SRC_PLL" # 19.2MHz clock
@@ -97,8 +105,7 @@ chip soc/intel/braswell
 		device pci 03.0 off end	# 8086 22b8 - Camera and Image Processor
 		device pci 0b.0 off end	# 8086 22dc - PUNIT/DPTF
 		device pci 10.0 off end	# 8086 2294 - MMC Port
-		device pci 11.0 off end	# 8086 0F15 - SDIO Port
-		device pci 12.0 off end	# 8086 0F16 - SD Port
+		device pci 12.0 off end	# 8086 2296 - SD Port
 		device pci 13.0 on end	# 8086 22a3 - Sata controller
 		device pci 14.0 on end	# 8086 22b5 - USB XHCI
 		device pci 15.0 on end	# 8086 22a8 - LP Engine Audio
@@ -111,20 +118,15 @@ chip soc/intel/braswell
 		device pci 18.5 off end	# 8086 22c5 -   I2C Port 5
 		device pci 18.6 off end	# 8086 22c6 -   I2C Port 6
 		device pci 18.7 off end	# 8086 22c7 -   I2C Port 7
-		device pci 1a.0 on end	# 8086 0F18 - Trusted Execution Engine
-		device pci 1b.0 on end	# 8086 0F04 - HD Audio
-		device pci 1c.0 on end	# 8086 0000 - PCIe Root Port 1
-		device pci 1c.1 on end	# 8086 0000 - PCIe Root Port 2
-		device pci 1c.2 off end	# 8086 0000 - PCIe Root Port 3
-		device pci 1c.3 off end	# 8086 0000 - PCIe Root Port 4
+		device pci 1a.0 on end	# 8086 2298 - Trusted Execution Engine
+		device pci 1b.0 on end	# 8086 2284 - HD Audio
+		device pci 1c.0 on end	# 8086 22c8 - PCIe Root Port 1
+		device pci 1c.1 on end	# 8086 22ca - PCIe Root Port 2
+		device pci 1c.2 off end	# 8086 22cc - PCIe Root Port 3
+		device pci 1c.3 off end	# 8086 22ce - PCIe Root Port 4
 		device pci 1e.0 on end	# 8086 2286 - SIO - DMA
-		device pci 1e.1 off end	# 8086 0F08 -   PWM 1
-		device pci 1e.2 off end	# 8086 0F09 -   PWM 2
 		device pci 1e.3 off end	# 8086 228a -   HSUART 1
 		device pci 1e.4 off end	# 8086 228c -   HSUART 2
-		device pci 1e.5 off end	# 8086 228e -   SPI 1
-		device pci 1e.6 off end	# 8086 2290 -   SPI 2
-		device pci 1e.7 off end	# 8086 22ac -   SPI 3
 		device pci 1f.0 on # 8086 229c - LPC bridge
 			chip superio/ite/it8613e
 				device pnp 2e.0 off end
@@ -144,6 +146,6 @@ chip soc/intel/braswell
 				end
 			end
 		end
-		device pci 1f.3 on end	# 8086 0F12 - SMBus 0
+		device pci 1f.3 on end	# 8086 2292 - SMBus 0
 	end
 end

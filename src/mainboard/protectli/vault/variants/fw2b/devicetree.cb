@@ -122,8 +122,8 @@ chip soc/intel/braswell
 		device pci 1b.0 on end	# 8086 2284 - HD Audio
 		device pci 1c.0 on end	# 8086 22c8 - PCIe Root Port 1
 		device pci 1c.1 on end	# 8086 22ca - PCIe Root Port 2
-		device pci 1c.2 off end	# 8086 22cc - PCIe Root Port 3
-		device pci 1c.3 off end	# 8086 22ce - PCIe Root Port 4
+		device pci 1c.2 on end	# 8086 22cc - PCIe Root Port 3
+		device pci 1c.3 on end	# 8086 22ce - PCIe Root Port 4
 		device pci 1e.0 on end	# 8086 2286 - SIO - DMA
 		device pci 1e.3 off end	# 8086 228a -   HSUART 1
 		device pci 1e.4 off end	# 8086 228c -   HSUART 2

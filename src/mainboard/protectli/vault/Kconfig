@@ -29,8 +29,8 @@ config DEVICETREE
 
 config MAINBOARD_PART_NUMBER
 	string
-        default "fw2b" if BOARD_PROTECTLI_FW2B
-        default "fw4b" if BOARD_PROTECTLI_FW4B
+	default "FW2B" if BOARD_PROTECTLI_FW2B
+	default "FW4B" if BOARD_PROTECTLI_FW4B
 
 config MAINBOARD_VENDOR
 	string

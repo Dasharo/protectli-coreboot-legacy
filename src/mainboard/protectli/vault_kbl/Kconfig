@@ -1,0 +1,57 @@
+if BOARD_PROTECTLI_FW6A || BOARD_PROTECTLI_FW6B || BOARD_PROTECTLI_FW6C
+
+config BOARD_SPECIFIC_OPTIONS
+	def_bool y
+	select BOARD_ROMSIZE_KB_8192
+	select HAVE_ACPI_RESUME
+	select HAVE_ACPI_TABLES
+	select SOC_INTEL_KABYLAKE
+	select MAINBOARD_USES_FSP2_0
+	select SUPERIO_ITE_IT8772F
+
+config IRQ_SLOT_COUNT
+	int
+	default 18
+
+config MAINBOARD_DIR
+	string
+	default "protectli/vault_kbl"
+
+config VARIANT_DIR
+	string
+	default "fw6a" if BOARD_PROTECTLI_FW6A
+	default "fw6b" if BOARD_PROTECTLI_FW6B
+	default "fw6c" if BOARD_PROTECTLI_FW6C
+
+config MAINBOARD_PART_NUMBER
+	string
+	default "FW6A" if BOARD_PROTECTLI_FW6A
+	default "FW6B" if BOARD_PROTECTLI_FW6B
+	default "FW6C" if BOARD_PROTECTLI_FW6C
+
+config MAX_CPUS
+	int
+	default 2 if BOARD_PROTECTLI_FW6A
+	default 4 if BOARD_PROTECTLI_FW6B || BOARD_PROTECTLI_FW6C
+
+config DEVICETREE
+	string
+	default "devicetree.cb"
+
+config OVERRIDE_DEVICETREE
+	string
+	default "variants/$(CONFIG_VARIANT_DIR)/overridetree.cb"
+
+config PRERAM_CBMEM_CONSOLE_SIZE
+	hex
+	default 0xd00
+
+config DIMM_MAX
+	int
+	default 2
+
+config DIMM_SPD_SIZE
+	int
+	default 512
+
+endif

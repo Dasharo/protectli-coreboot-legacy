@@ -1,7 +1,2 @@
-config BOARD_PROTECTLI_FW6A
-	bool "Vault FW6A"
-config BOARD_PROTECTLI_FW6B
-	bool "Vault FW6B"
-config BOARD_PROTECTLI_FW6C
-	bool "Vault FW6C"
-
+config BOARD_PROTECTLI_FW6
+	bool "Vault FW6"

@@ -1,21 +1,21 @@
 chip soc/intel/skylake
 
 	# Enable deep Sx states
+	register "deep_s3_enable_ac" = "0"
+	register "deep_s3_enable_dc" = "0"
 	register "deep_s5_enable_ac" = "0"
 	register "deep_s5_enable_dc" = "0"
-	register "deep_sx_config" = "DSX_EN_LAN_WAKE_PIN"
+	register "deep_sx_config" = "DSX_EN_WAKE_PIN"
+	register "s0ix_enable" = "1"
 
-	register "tcc_offset" = "5" # TCC of 95C
-
-	# GPE configuration
-	# Note that GPE events called out in ASL code rely on this
-	# route. i.e. If this route changes then the affected GPE
-	# offset bits also need to be changed.
-	register "gpe0_dw0" = "GPP_B"
+	register "gpe0_dw0" = "GPP_C"
 	register "gpe0_dw1" = "GPP_D"
 	register "gpe0_dw2" = "GPP_E"
 
-	register "gen1_dec" = "0x00fc0801"
+	register "gen1_dec" = "0x00fc0201"
+	register "gen2_dec" = "0x007c0a01"
+	register "gen3_dec" = "0x000c03e1"
+	register "gen4_dec" = "0x001c02e1"
 
 	# Enable "Intel Speed Shift Technology"
 	register "speed_shift_enable" = "1"
@@ -23,17 +23,18 @@ chip soc/intel/skylake
 	# Disable DPTF
 	register "dptf_enable" = "0"
 
-	# Enable SERIRQ continuous SataMode
+	# Enable SERIRQ continuous
 	register "serirq_mode" = "SERIRQ_CONTINUOUS"
 	
 	# Enable SGX
 	register "sgx_enable" = "1"
-	register "eist_enable" = "1"
 
+	register "eist_enable" = "1"
+	register "tcc_offset" = "5" # TCC of 95C
 
 	# FSP Configuration
 	register "ProbelessTrace" = "0"
-	register "EnableLan" = "1"
+	register "EnableLan" = "0"
 	register "EnableSata" = "1"
 	register "SataSalpSupport" = "0"
 	register "SataMode" = "0"
@@ -62,7 +63,8 @@ chip soc/intel/skylake
 	register "SaGv" = "SaGv_Enabled"
 	register "SaImguEnable" = "0"
 	register "IslVrCmd" = "2"
-
+	register "PmConfigDeepSxPol" = "1"
+	register "PrmrrSize" = "0x10000000"
 
 	register "pirqa_routing" = "PCH_IRQ11"
 	register "pirqb_routing" = "PCH_IRQ10"
@@ -91,8 +93,8 @@ chip soc/intel/skylake
 	#+----------------+-------+-------+-------+-------+
 	#| Domain/Setting |  SA   |  IA   | GTUS  |  GTS  |
 	#+----------------+-------+-------+-------+-------+
-	#| Psi1Threshold  | 20A   | 20A   | 20A   | 20A   |
-	#| Psi2Threshold  | 5A    | 5A    | 5A    | 5A    |
+	#| Psi1Threshold  | 24A   | 24A   | 24A   | 24A   |
+	#| Psi2Threshold  | 8A    | 8A    | 8A    | 8A    |
 	#| Psi3Threshold  | 1A    | 1A    | 1A    | 1A    |
 	#| Psi3Enable     | 1     | 1     | 1     | 1     |
 	#| Psi4Enable     | 1     | 1     | 1     | 1     |
@@ -103,8 +105,8 @@ chip soc/intel/skylake
 	#+----------------+-------+-------+-------+-------+
 	register "domain_vr_config[VR_SYSTEM_AGENT]" = "{
 		.vr_config_enable = 1, \
-		.psi1threshold = 0x50, \
-		.psi2threshold = 0x10, \
+		.psi1threshold = 0x80, \
+		.psi2threshold = 0x20, \
 		.psi3threshold = 0x4, \
 		.psi3enable = 1, \
 		.psi4enable = 1, \
@@ -116,8 +118,8 @@ chip soc/intel/skylake
 
 	register "domain_vr_config[VR_IA_CORE]" = "{
 		.vr_config_enable = 1, \
-		.psi1threshold = 0x50, \
-		.psi2threshold = 0x14, \
+		.psi1threshold = 0x80, \
+		.psi2threshold = 0x20, \
 		.psi3threshold = 0x4, \
 		.psi3enable = 1, \
 		.psi4enable = 1, \
@@ -129,8 +131,8 @@ chip soc/intel/skylake
 
 	register "domain_vr_config[VR_GT_UNSLICED]" = "{
 		.vr_config_enable = 1, \
-		.psi1threshold = 0x50, \
-		.psi2threshold = 0x14, \
+		.psi1threshold = 0x80, \
+		.psi2threshold = 0x20, \
 		.psi3threshold = 0x4, \
 		.psi3enable = 1, \
 		.psi4enable = 1, \
@@ -142,8 +144,8 @@ chip soc/intel/skylake
 
 	register "domain_vr_config[VR_GT_SLICED]" = "{
 		.vr_config_enable = 1, \
-		.psi1threshold = 0x50, \
-		.psi2threshold = 0x14, \
+		.psi1threshold = 0x80, \
+		.psi2threshold = 0x20, \
 		.psi3threshold = 0x4, \
 		.psi3enable = 1, \
 		.psi4enable = 1, \
@@ -155,6 +157,65 @@ chip soc/intel/skylake
 
 	# Send an extra VR mailbox command for the PS4 exit issue
 	register "SendVrMbxCmd" = "2"
+
+	# Enable Root ports.
+	register "PcieRpEnable[0]" = "1"
+	register "PcieRpEnable[1]" = "1"
+	register "PcieRpEnable[2]" = "1"
+	register "PcieRpEnable[4]" = "1"
+	register "PcieRpEnable[5]" = "1"
+	register "PcieRpEnable[8]" = "1"
+
+	# Enable/disable CLKREQ#
+	register "PcieRpClkReqSupport[0]" = "0"
+	register "PcieRpClkReqSupport[1]" = "0"
+	register "PcieRpClkReqSupport[2]" = "0"
+	register "PcieRpClkReqSupport[3]" = "0"
+	register "PcieRpClkReqSupport[4]" = "0"
+	register "PcieRpClkReqSupport[5]" = "0"
+	register "PcieRpClkReqSupport[8]" = "1"
+
+	# RP 9 uses SRCCLKREQ0#
+	register "PcieRpClkReqNumber[8]" = "1"
+
+	# RP 9 uses uses CLK SRC 1#
+	register "PcieRpClkSrcNumber[8]" = "1"
+
+	# USB 2.0 Enable all ports
+        register "usb2_ports[0]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+        register "usb2_ports[1]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+        register "usb2_ports[2]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+        register "usb2_ports[3]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+        register "usb2_ports[4]" = "USB2_PORT_SHORT(OC_SKIP)"	# Type-A Port
+        register "usb2_ports[5]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+        register "usb2_ports[6]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+        register "usb2_ports[7]" = "USB2_PORT_SHORT(OC_SKIP)"	# WiFi PCIe
+
+        # USB 3.0 Enable Port 1-4
+        register "usb3_ports[0]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
+        register "usb3_ports[1]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
+        register "usb3_ports[2]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
+        register "usb3_ports[3]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
+
+
+	register "SerialIoDevMode" = "{ \
+		[PchSerialIoIndexI2C0]  = PchSerialIoDisabled, \
+		[PchSerialIoIndexI2C1]  = PchSerialIoDisabled, \
+		[PchSerialIoIndexI2C2]  = PchSerialIoDisabled, \
+		[PchSerialIoIndexI2C3]  = PchSerialIoDisabled, \
+		[PchSerialIoIndexI2C4]  = PchSerialIoDisabled, \
+		[PchSerialIoIndexI2C5]  = PchSerialIoDisabled, \
+		[PchSerialIoIndexSpi0]  = PchSerialIoDisabled, \
+		[PchSerialIoIndexSpi1]  = PchSerialIoDisabled, \
+		[PchSerialIoIndexUart0] = PchSerialIoDisabled, \
+		[PchSerialIoIndexUart1] = PchSerialIoDisabled, \
+		[PchSerialIoIndexUart2] = PchSerialIoDisabled, \
+	}"
+
+	# Lock Down
+	register "common_soc_config" = "{
+		.chipset_lockdown = CHIPSET_LOCKDOWN_COREBOOT,
+	}"
 
 	device cpu_cluster 0 on
 		device lapic 0 on end

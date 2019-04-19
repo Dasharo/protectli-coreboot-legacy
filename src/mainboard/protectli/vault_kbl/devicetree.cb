@@ -25,9 +25,6 @@ chip soc/intel/skylake
 
 	# Enable SERIRQ continuous
 	register "serirq_mode" = "SERIRQ_CONTINUOUS"
-	
-	# Enable SGX
-	register "sgx_enable" = "1"
 
 	register "eist_enable" = "1"
 	register "tcc_offset" = "5" # TCC of 95C
@@ -36,15 +33,10 @@ chip soc/intel/skylake
 	register "ProbelessTrace" = "0"
 	register "EnableLan" = "0"
 	register "EnableSata" = "1"
-	register "SataSalpSupport" = "0"
+	register "SataSalpSupport" = "1"
 	register "SataMode" = "0"
-	register "SataPortsEnable[0]" = "1"
-	register "SataPortsEnable[1]" = "1"
-	register "SataPortsEnable[2]" = "1"
-	register "SataPortsDevSlp[0]" = "0"
-	register "SataPortsDevSlp[1]" = "0"
-	register "SataPortsDevSlp[2]" = "0"
 	register "SataSpeedLimit" = "2"
+	register "SataPwrOptEnable" = "1"
 	register "EnableAzalia" = "0"
 	register "DspEnable" = "0"
 	register "IoBufferOwnership" = "0"
@@ -57,14 +49,18 @@ chip soc/intel/skylake
 	register "ScsSdCardEnabled" = "0"
 	register "PttSwitch" = "0"
 	register "SkipExtGfxScan" = "1"
-	register "Device4Enable" = "1"
+	register "Device4Enable" = "0"
 	register "HeciEnabled" = "1"
+	register "Heci3Enabled" = "0"
 	register "PmTimerDisabled" = "0"
+	register "PmConfigPciClockRun" = "0"
 	register "SaGv" = "SaGv_Enabled"
 	register "SaImguEnable" = "0"
 	register "IslVrCmd" = "2"
-	register "PmConfigDeepSxPol" = "1"
-	register "PrmrrSize" = "0x10000000"
+	register "PmConfigSlpS3MinAssert" = "2"		# 50ms
+	register "PmConfigSlpS4MinAssert" = "1"		# 1s
+	register "PmConfigSlpSusMinAssert" = "3"	# 500ms
+	register "PmConfigSlpAMinAssert" = "3"		# 2s
 
 	register "pirqa_routing" = "PCH_IRQ11"
 	register "pirqb_routing" = "PCH_IRQ10"
@@ -75,34 +71,22 @@ chip soc/intel/skylake
 	register "pirqg_routing" = "PCH_IRQ11"
 	register "pirqh_routing" = "PCH_IRQ11"
 
-	# Enabling SLP_S3#, SLP_S4#, SLP_SUS and SLP_A Stretch
-	# SLP_S3 Minimum Assertion Width. Values 0: 60us, 1: 1ms, 2: 50ms, 3: 2s
-	register "PmConfigSlpS3MinAssert" = "0x02"
-
-	# SLP_S4 Minimum Assertion Width. Values 0: default, 1: 1s, 2: 2s, 3: 3s, 4: 4s
-	register "PmConfigSlpS4MinAssert" = "0x04"
-
-	# SLP_SUS Minimum Assertion Width. Values 0: 0ms, 1: 500ms, 2: 1s, 3: 4s
-	register "PmConfigSlpSusMinAssert" = "0x03"
-
-	# SLP_A Minimum Assertion Width. Values 0: 0ms, 1: 4s, 2: 98ms, 3: 2s
-	register "PmConfigSlpAMinAssert" = "0x03"
-
-
 	# VR Settings Configuration for 4 Domains
-	#+----------------+-------+-------+-------+-------+
-	#| Domain/Setting |  SA   |  IA   | GTUS  |  GTS  |
-	#+----------------+-------+-------+-------+-------+
-	#| Psi1Threshold  | 24A   | 24A   | 24A   | 24A   |
-	#| Psi2Threshold  | 8A    | 8A    | 8A    | 8A    |
-	#| Psi3Threshold  | 1A    | 1A    | 1A    | 1A    |
-	#| Psi3Enable     | 1     | 1     | 1     | 1     |
-	#| Psi4Enable     | 1     | 1     | 1     | 1     |
-	#| ImonSlope      | 0     | 0     | 0     | 0     |
-	#| ImonOffset     | 0     | 0     | 0     | 0     |
-	#| IccMax         | 7A    | 34A   | 35A   | 35A   |
-	#| VrVoltageLimit | 1.52V | 1.52V | 1.52V | 1.52V |
-	#+----------------+-------+-------+-------+-------+
+	#+----------------+-----------+-----------+-------------+----------+
+	#| Domain/Setting | SA        | IA        | GTUS        | GTS      |
+	#+----------------+-----------+-----------+-------------+----------+
+	#| Psi1Threshold  | 24A       | 24A       | 24A         | 24A      |
+	#| Psi2Threshold  | 8A        | 8A        | 8A          | 8A       |
+	#| Psi3Threshold  | 1A        | 1A        | 1A          | 1A       |
+	#| Psi3Enable     | 1         | 1         | 1           | 1        |
+	#| Psi4Enable     | 1         | 1         | 1           | 1        |
+	#| ImonSlope      | 0         | 0         | 0           | 0        |
+	#| ImonOffset     | 0         | 0         | 0           | 0        |
+	#| IccMax         | 7A        | 34A       | 35A         | 35A      |
+	#| VrVoltageLimit | 1.52V     | 1.52V     | 1.52V       | 1.52V    |
+	#| AC LoadLine    | 15 mOhm   | 5.7 mOhm  | 5.2 mOhm    | 5.2 mOhm |
+	#| DC LoadLine    | 14.3 mOhm | 4.83 mOhm | 4.2 mOhm    | 4.2 mOhm |
+	#+----------------+-----------+-----------+-------------+----------+
 	register "domain_vr_config[VR_SYSTEM_AGENT]" = "{
 		.vr_config_enable = 1, \
 		.psi1threshold = 0x80, \
@@ -113,7 +97,9 @@ chip soc/intel/skylake
 		.imon_slope = 0x0, \
 		.imon_offset = 0x0, \
 		.icc_max = 0x1C, \
-		.voltage_limit = 0x5F0 \
+		.voltage_limit = 0x5F0, \
+		.ac_loadline = 1500, \
+		.dc_loadline = 1430, \
 	}"
 
 	register "domain_vr_config[VR_IA_CORE]" = "{
@@ -126,7 +112,9 @@ chip soc/intel/skylake
 		.imon_slope = 0x0, \
 		.imon_offset = 0x0, \
 		.icc_max = 0x88, \
-		.voltage_limit = 0x5F0 \
+		.voltage_limit = 0x5F0, \
+		.ac_loadline = 570, \
+		.dc_loadline = 483, \
 	}"
 
 	register "domain_vr_config[VR_GT_UNSLICED]" = "{
@@ -139,7 +127,9 @@ chip soc/intel/skylake
 		.imon_slope = 0x0, \
 		.imon_offset = 0x0, \
 		.icc_max = 0x8C ,\
-		.voltage_limit = 0x5F0 \
+		.voltage_limit = 0x5F0, \
+		.ac_loadline = 520, \
+		.dc_loadline = 420, \
 	}"
 
 	register "domain_vr_config[VR_GT_SLICED]" = "{
@@ -152,51 +142,76 @@ chip soc/intel/skylake
 		.imon_slope = 0x0, \
 		.imon_offset = 0x0, \
 		.icc_max = 0x8C, \
-		.voltage_limit = 0x5F0 \
+		.voltage_limit = 0x5F0, \
+		.ac_loadline = 520, \
+		.dc_loadline = 420, \
 	}"
 
 	# Send an extra VR mailbox command for the PS4 exit issue
 	register "SendVrMbxCmd" = "2"
 
-	# Enable Root ports.
+	# Enable SATA ports 1,2
+	register "SataPortsEnable[0]" = "1"
+	register "SataPortsEnable[1]" = "1"
+	register "SataPortsEnable[2]" = "0"
+	register "SataPortsDevSlp[0]" = "0"
+	register "SataPortsDevSlp[1]" = "0"
+
+	# Enable Root ports. 1-6, 9
 	register "PcieRpEnable[0]" = "1"
 	register "PcieRpEnable[1]" = "1"
 	register "PcieRpEnable[2]" = "1"
+	register "PcieRpEnable[3]" = "1"
 	register "PcieRpEnable[4]" = "1"
 	register "PcieRpEnable[5]" = "1"
-	register "PcieRpEnable[8]" = "1"
+	register "PcieRpEnable[6]" = "0"
+	register "PcieRpEnable[7]" = "0"
+	register "PcieRpEnable[8]" = "1" # WiFi mPCIe
+	register "PcieRpEnable[9]" = "0"
+	register "PcieRpEnable[10]" = "0"
+	register "PcieRpEnable[11]" = "0"
 
-	# Enable/disable CLKREQ#
+	# Disable CLKREQ# support
 	register "PcieRpClkReqSupport[0]" = "0"
 	register "PcieRpClkReqSupport[1]" = "0"
 	register "PcieRpClkReqSupport[2]" = "0"
 	register "PcieRpClkReqSupport[3]" = "0"
 	register "PcieRpClkReqSupport[4]" = "0"
 	register "PcieRpClkReqSupport[5]" = "0"
-	register "PcieRpClkReqSupport[8]" = "1"
+	register "PcieRpClkReqSupport[8]" = "0"
 
-	# RP 9 uses SRCCLKREQ0#
-	register "PcieRpClkReqNumber[8]" = "1"
+	# Clocks 0-5 for RP 1-6
+	register "PcieRpClkSrcNumber[0]" = "1"
+	register "PcieRpClkSrcNumber[1]" = "2"
+	register "PcieRpClkSrcNumber[2]" = "3"
+	register "PcieRpClkSrcNumber[3]" = "4"
+	register "PcieRpClkSrcNumber[4]" = "5"
+	register "PcieRpClkSrcNumber[5]" = "6"
+	# RP 9 uses uses CLKSRC 5#
+	register "PcieRpClkSrcNumber[8]" = "6"
 
-	# RP 9 uses uses CLK SRC 1#
-	register "PcieRpClkSrcNumber[8]" = "1"
 
-	# USB 2.0 Enable all ports
-        register "usb2_ports[0]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
-        register "usb2_ports[1]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
-        register "usb2_ports[2]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
-        register "usb2_ports[3]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
-        register "usb2_ports[4]" = "USB2_PORT_SHORT(OC_SKIP)"	# Type-A Port
-        register "usb2_ports[5]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
-        register "usb2_ports[6]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
-        register "usb2_ports[7]" = "USB2_PORT_SHORT(OC_SKIP)"	# WiFi PCIe
+	# USB 2.0 enable ports 1-8, disable ports 9-12
+	register "usb2_ports[0]"  = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+	register "usb2_ports[1]"  = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+	register "usb2_ports[2]"  = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+	register "usb2_ports[3]"  = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+	register "usb2_ports[4]"  = "USB2_PORT_SHORT(OC_SKIP)"	# Type-A Port
+	register "usb2_ports[5]"  = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+	register "usb2_ports[6]"  = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+	register "usb2_ports[7]"  = "USB2_PORT_SHORT(OC_SKIP)"	# mPCIe slot
+	register "usb2_ports[8]"  = "USB2_PORT_EMPTY"		# Disabled
+	register "usb2_ports[9]"  = "USB2_PORT_EMPTY"		# Disabled
+	register "usb2_ports[10]" = "USB2_PORT_EMPTY"		# Disabled
+	register "usb2_ports[11]" = "USB2_PORT_EMPTY"		# Disabled
 
-        # USB 3.0 Enable Port 1-4
-        register "usb3_ports[0]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
-        register "usb3_ports[1]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
-        register "usb3_ports[2]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
-        register "usb3_ports[3]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
-
+	# USB 3.0 enable ports 1-4, disable ports 5-6
+	register "usb3_ports[0]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
+	register "usb3_ports[1]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
+	register "usb3_ports[2]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
+	register "usb3_ports[3]" = "USB3_PORT_DEFAULT(OC_SKIP)"	# TYPE-A Port
+	register "usb3_ports[4]" = "USB3_PORT_EMPTY"		# Disabled
+	register "usb3_ports[5]" = "USB3_PORT_EMPTY"		# Disabled
 
 	register "SerialIoDevMode" = "{ \
 		[PchSerialIoIndexI2C0]  = PchSerialIoDisabled, \
@@ -237,7 +252,7 @@ chip soc/intel/skylake
 		device pci 16.2 off end # Management Engine IDE-R
 		device pci 16.3 off end # Management Engine KT Redirection
 		device pci 16.4 off end # Management Engine Interface 3
-		device pci 17.0 on  end # SATA
+		device pci 17.0 on end # SATA
 		device pci 19.0 off end # UART #2
 		device pci 19.1 off end # I2C #5
 		device pci 19.2 off end # I2C #4
@@ -260,7 +275,38 @@ chip soc/intel/skylake
 		device pci 1e.4 off end # eMMC
 		device pci 1e.5 off end # SDIO
 		device pci 1e.6 off end # SDCard
-		device pci 1f.0 on  end # LPC Interface
+		device pci 1f.0 on
+			chip superio/ite/it8772f
+				register "skip_keyboard" = "1"
+				register "peci_tmpin" = "3"
+				register "tmpin1_mode" = "THERMAL_RESISTOR"
+				register "tmpin2_mode" = "THERMAL_RESISTOR"
+				# Enable FAN2 available on fan header
+				register "fan2_enable" = "1"
+				register "fan2_speed" = "0x60"
+
+				device pnp 2e.0 off end # FDC
+				device pnp 2e.1 on # Serial Port 1
+					io 0x60 = 0x3f8
+					irq 0x70 = 4
+				end
+				device pnp 2e.4 on # Environment Controller
+					io 0x60 = 0xa40
+					io 0x62 = 0xa30
+					irq 0x70 = 9
+				end
+				device pnp 2e.5 on # Keyboard
+					io 0x60 = 0x60
+					io 0x62 = 0x64
+					irq 0x70 = 1
+				end
+				device pnp 2e.6 on # Mouse
+					irq 0x70 = 12
+				end
+				device pnp 2e.7 off end # GPIO
+				device pnp 2e.a off end # IR
+			end
+		end # LPC Interface
 		device pci 1f.1 on  end # P2SB
 		device pci 1f.2 on  end # Power Management Controller
 		device pci 1f.3 off end # Intel HDA

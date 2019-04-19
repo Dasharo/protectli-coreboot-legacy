@@ -16,10 +16,8 @@
  */
 
 #include <device/device.h>
-#include <gpio.h>
 #include <stdlib.h>
 #include <soc/nhlt.h>
-#include <variant/gpio.h>
 
 /*
  * mainboard_enable is executed as first thing after

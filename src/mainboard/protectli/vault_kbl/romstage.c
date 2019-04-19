@@ -85,13 +85,4 @@ void mainboard_memory_init_params(FSPM_UPD *mupd)
 	mem_cfg->MemorySpdDataLen = blk.len;
 	mem_cfg->MemorySpdPtr00 = (uintptr_t)blk.spd_array[0];
 	mem_cfg->MemorySpdPtr10 = (uintptr_t)blk.spd_array[1];
-
-	mem_cfg->EnableSgx = 0;
-	mupd->FspmTestConfig.HeciCommunication2 = 0;
-	mupd->FspmTestConfig.IderDeviceEnable = 0;
-	mupd->FspmTestConfig.KtDeviceEnable = 0;
-
-	/* Configure pads prior to MemoryInit() in case there's any
-	 * dependencies during memory initialization. */
-	gpio_configure_pads(gpio_table, ARRAY_SIZE(gpio_table));
 }

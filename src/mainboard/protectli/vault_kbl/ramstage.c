@@ -28,7 +28,6 @@ void mainboard_silicon_init_params(FSP_SIL_UPD *params)
 
 	params->TurboMode = 1;
 	params->PchPort61hEnable = 1;
-	params->PchPwrOptEnable = 1;
 	params->CdClock = 3;
 	params->GmmEnable = 0;
 }

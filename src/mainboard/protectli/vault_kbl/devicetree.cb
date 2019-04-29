@@ -3,9 +3,9 @@ chip soc/intel/skylake
 	# Enable deep Sx states
 	register "deep_s3_enable_ac" = "0"
 	register "deep_s3_enable_dc" = "0"
-	register "deep_s5_enable_ac" = "0"
-	register "deep_s5_enable_dc" = "0"
-	register "deep_sx_config" = "DSX_EN_WAKE_PIN"
+	register "deep_s5_enable_ac" = "1"
+	register "deep_s5_enable_dc" = "1"
+	register "deep_sx_config" = "DSX_EN_WAKE_PIN | DSX_DIS_AC_PRESENT_PD"
 	register "s0ix_enable" = "1"
 
 	register "gpe0_dw0" = "GPP_B"
@@ -24,6 +24,9 @@ chip soc/intel/skylake
 	# Disable DPTF
 	register "dptf_enable" = "0"
 
+	# Enable VT-d
+	register "ignore_vtd" = "0"
+
 	# Enable SERIRQ continuous
 	register "serirq_mode" = "SERIRQ_CONTINUOUS"
 
@@ -35,8 +38,7 @@ chip soc/intel/skylake
 	register "EnableSata" = "1"
 	register "SataSalpSupport" = "0"
 	register "SataMode" = "0"
-	register "SataSpeedLimit" = "2"
-	register "SataPwrOptEnable" = "0"
+	register "SataPwrOptEnable" = "1"
 	register "EnableAzalia" = "0"
 	register "DspEnable" = "0"
 	register "IoBufferOwnership" = "0"
@@ -49,15 +51,15 @@ chip soc/intel/skylake
 	register "ScsSdCardEnabled" = "0"
 	register "SkipExtGfxScan" = "1"
 	register "Device4Enable" = "0"
-	register "HeciEnabled" = "1"
+	register "HeciEnabled" = "0"
+	register "Heci3Enabled" = "0"
 	register "PmTimerDisabled" = "0"
-	register "PmConfigPciClockRun" = "0"
 	register "SaGv" = "SaGv_Enabled"
 	register "SaImguEnable" = "0"
 	register "IslVrCmd" = "2"
 	register "PmConfigSlpS3MinAssert" = "2"		# 50ms
-	register "PmConfigSlpS4MinAssert" = "1"		# 1s
-	register "PmConfigSlpSusMinAssert" = "3"	# 500ms
+	register "PmConfigSlpS4MinAssert" = "4"		# 4s
+	register "PmConfigSlpSusMinAssert" = "1"	# 500ms
 	register "PmConfigSlpAMinAssert" = "3"		# 2s
 
 	register "pirqa_routing" = "PCH_IRQ11"
@@ -70,79 +72,76 @@ chip soc/intel/skylake
 	register "pirqh_routing" = "PCH_IRQ11"
 
 	# VR Settings Configuration for 4 Domains
-	#+----------------+-----------+-----------+-------------+----------+
-	#| Domain/Setting | SA        | IA        | GTUS        | GTS      |
-	#+----------------+-----------+-----------+-------------+----------+
-	#| Psi1Threshold  | 24A       | 24A       | 24A         | 24A      |
-	#| Psi2Threshold  | 8A        | 8A        | 8A          | 8A       |
-	#| Psi3Threshold  | 1A        | 1A        | 1A          | 1A       |
-	#| Psi3Enable     | 1         | 1         | 1           | 1        |
-	#| Psi4Enable     | 1         | 1         | 1           | 1        |
-	#| ImonSlope      | 0         | 0         | 0           | 0        |
-	#| ImonOffset     | 0         | 0         | 0           | 0        |
-	#| IccMax         | 7A        | 34A       | 35A         | 35A      |
-	#| VrVoltageLimit | 1.52V     | 1.52V     | 1.52V       | 1.52V    |
-	#| AC LoadLine    | 15 mOhm   | 5.7 mOhm  | 5.2 mOhm    | 5.2 mOhm |
-	#| DC LoadLine    | 14.3 mOhm | 4.83 mOhm | 4.2 mOhm    | 4.2 mOhm |
-	#+----------------+-----------+-----------+-------------+----------+
+	#+----------------+-------+-------+-------+-------+
+	#| Domain/Setting |  SA   |  IA   | GTUS  |  GTS  |
+	#+----------------+-------+-------+-------+-------+
+	#| Psi1Threshold  | 20A   | 20A   | 20A   | 20A   |
+	#| Psi2Threshold  | 4A    | 5A    | 5A    | 5A    |
+	#| Psi3Threshold  | 1A    | 1A    | 1A    | 1A    |
+	#| Psi3Enable     | 1     | 1     | 1     | 1     |
+	#| Psi4Enable     | 1     | 1     | 1     | 1     |
+	#| ImonSlope      | 0     | 0     | 0     | 0     |
+	#| ImonOffset     | 0     | 0     | 0     | 0     |
+	#| IccMax         | 7A    | 34A   | 35A   | 35A   |
+	#| VrVoltageLimit | 1.52V | 1.52V | 1.52V | 1.52V |
+	#| AcLoadline(ohm)| 10.3m | 2.4m  | 3.1m  | 3.1m  |
+	#| DcLoadline(ohm)| 10.3m | 2.4m  | 3.1m  | 3.1m  |
+	#+----------------+-------+-------+-------+-------+
+	#Note: IccMax settings are moved to SoC code
 	register "domain_vr_config[VR_SYSTEM_AGENT]" = "{
-		.vr_config_enable = 1, \
-		.psi1threshold = 0x80, \
-		.psi2threshold = 0x20, \
-		.psi3threshold = 0x4, \
-		.psi3enable = 1, \
-		.psi4enable = 1, \
-		.imon_slope = 0x0, \
-		.imon_offset = 0x0, \
-		.icc_max = 0x1C, \
-		.voltage_limit = 0x5F0, \
-		.ac_loadline = 1500, \
-		.dc_loadline = 1430, \
+		.vr_config_enable = 1,
+		.psi1threshold = VR_CFG_AMP(20),
+		.psi2threshold = VR_CFG_AMP(4),
+		.psi3threshold = VR_CFG_AMP(1),
+		.psi3enable = 1,
+		.psi4enable = 1,
+		.imon_slope = 0x0,
+		.imon_offset = 0x0,
+		.voltage_limit = 1520,
+		.ac_loadline = 1030,
+		.dc_loadline = 1030,
 	}"
 
 	register "domain_vr_config[VR_IA_CORE]" = "{
-		.vr_config_enable = 1, \
-		.psi1threshold = 0x80, \
-		.psi2threshold = 0x20, \
-		.psi3threshold = 0x4, \
-		.psi3enable = 1, \
-		.psi4enable = 1, \
-		.imon_slope = 0x0, \
-		.imon_offset = 0x0, \
-		.icc_max = 0x88, \
-		.voltage_limit = 0x5F0, \
-		.ac_loadline = 570, \
-		.dc_loadline = 483, \
+		.vr_config_enable = 1,
+		.psi1threshold = VR_CFG_AMP(20),
+		.psi2threshold = VR_CFG_AMP(5),
+		.psi3threshold = VR_CFG_AMP(1),
+		.psi3enable = 1,
+		.psi4enable = 1,
+		.imon_slope = 0x0,
+		.imon_offset = 0x0,
+		.voltage_limit = 1520,
+		.ac_loadline = 240,
+		.dc_loadline = 240,
 	}"
 
 	register "domain_vr_config[VR_GT_UNSLICED]" = "{
-		.vr_config_enable = 1, \
-		.psi1threshold = 0x80, \
-		.psi2threshold = 0x20, \
-		.psi3threshold = 0x4, \
-		.psi3enable = 1, \
-		.psi4enable = 1, \
-		.imon_slope = 0x0, \
-		.imon_offset = 0x0, \
-		.icc_max = 0x8C ,\
-		.voltage_limit = 0x5F0, \
-		.ac_loadline = 520, \
-		.dc_loadline = 420, \
+		.vr_config_enable = 1,
+		.psi1threshold = VR_CFG_AMP(20),
+		.psi2threshold = VR_CFG_AMP(5),
+		.psi3threshold = VR_CFG_AMP(1),
+		.psi3enable = 1,
+		.psi4enable = 1,
+		.imon_slope = 0x0,
+		.imon_offset = 0x0,
+		.voltage_limit = 1520,
+		.ac_loadline = 310,
+		.dc_loadline = 310,
 	}"
 
 	register "domain_vr_config[VR_GT_SLICED]" = "{
-		.vr_config_enable = 1, \
-		.psi1threshold = 0x80, \
-		.psi2threshold = 0x20, \
-		.psi3threshold = 0x4, \
-		.psi3enable = 1, \
-		.psi4enable = 1, \
-		.imon_slope = 0x0, \
-		.imon_offset = 0x0, \
-		.icc_max = 0x8C, \
-		.voltage_limit = 0x5F0, \
-		.ac_loadline = 520, \
-		.dc_loadline = 420, \
+		.vr_config_enable = 1,
+		.psi1threshold = VR_CFG_AMP(20),
+		.psi2threshold = VR_CFG_AMP(5),
+		.psi3threshold = VR_CFG_AMP(1),
+		.psi3enable = 1,
+		.psi4enable = 1,
+		.imon_slope = 0x0,
+		.imon_offset = 0x0,
+		.voltage_limit = 1520,
+		.ac_loadline = 310,
+		.dc_loadline = 310,
 	}"
 
 	# Send an extra VR mailbox command for the PS4 exit issue
@@ -155,38 +154,47 @@ chip soc/intel/skylake
 	register "SataPortsDevSlp[0]" = "0"
 	register "SataPortsDevSlp[1]" = "0"
 
-	# Enable Root ports. 1-6, 9
+	# Enable Root ports. 1-6 for LAN
 	register "PcieRpEnable[0]" = "1"
 	register "PcieRpEnable[1]" = "1"
 	register "PcieRpEnable[2]" = "1"
 	register "PcieRpEnable[3]" = "1"
 	register "PcieRpEnable[4]" = "1"
 	register "PcieRpEnable[5]" = "1"
-	register "PcieRpEnable[6]" = "0"
-	register "PcieRpEnable[7]" = "0"
 	register "PcieRpEnable[8]" = "1" # WiFi mPCIe
-	register "PcieRpEnable[9]" = "0"
-	register "PcieRpEnable[10]" = "0"
-	register "PcieRpEnable[11]" = "0"
 
-	# Disable CLKREQ# support
-	register "PcieRpClkReqSupport[0]" = "0"
-	register "PcieRpClkReqSupport[1]" = "0"
-	register "PcieRpClkReqSupport[2]" = "0"
-	register "PcieRpClkReqSupport[3]" = "0"
-	register "PcieRpClkReqSupport[4]" = "0"
-	register "PcieRpClkReqSupport[5]" = "0"
-	register "PcieRpClkReqSupport[8]" = "0"
+	# Enable Advanced Error Reporting for RP 1-6, 9
+	register "PcieRpAdvancedErrorReporting[0]" = "1"
+	register "PcieRpAdvancedErrorReporting[1]" = "1"
+	register "PcieRpAdvancedErrorReporting[2]" = "1"
+	register "PcieRpAdvancedErrorReporting[3]" = "1"
+	register "PcieRpAdvancedErrorReporting[4]" = "1"
+	register "PcieRpAdvancedErrorReporting[5]" = "1"
+	register "PcieRpAdvancedErrorReporting[8]" = "1"
+
+	# Enable Latency Tolerance Reporting Mechanism RP 1-6, 9
+	register "PcieRpLtrEnable[0]" = "1"
+	register "PcieRpLtrEnable[1]" = "1"
+	register "PcieRpLtrEnable[2]" = "1"
+	register "PcieRpLtrEnable[3]" = "1"
+	register "PcieRpLtrEnable[4]" = "1"
+	register "PcieRpLtrEnable[5]" = "1"
+	register "PcieRpLtrEnable[8]" = "1"
+
+	# Enable RP 9 CLKREQ# support
+	register "PcieRpClkReqSupport[8]" = "1"
+	# RP 9 uses CLKREQ0#
+	register "PcieRpClkReqNumber[8]" = "0"
 
 	# Clocks 0-5 for RP 1-6
-	register "PcieRpClkSrcNumber[0]" = "1"
-	register "PcieRpClkSrcNumber[1]" = "2"
-	register "PcieRpClkSrcNumber[2]" = "3"
-	register "PcieRpClkSrcNumber[3]" = "4"
-	register "PcieRpClkSrcNumber[4]" = "5"
-	register "PcieRpClkSrcNumber[5]" = "6"
-	# RP 9 uses uses CLKSRC 5#
-	register "PcieRpClkSrcNumber[8]" = "6"
+	register "PcieRpClkSrcNumber[0]" = "0"
+	register "PcieRpClkSrcNumber[1]" = "1"
+	register "PcieRpClkSrcNumber[2]" = "2"
+	register "PcieRpClkSrcNumber[3]" = "3"
+	register "PcieRpClkSrcNumber[4]" = "4"
+	register "PcieRpClkSrcNumber[5]" = "5"
+	# RP 9 shares CLKSRC5# with RP 6
+	register "PcieRpClkSrcNumber[8]" = "5"
 
 
 	# USB 2.0 enable ports 1-8, disable ports 9-12
@@ -225,7 +233,7 @@ chip soc/intel/skylake
 		[PchSerialIoIndexUart2] = PchSerialIoDisabled, \
 	}"
 
-	# Lock Down
+	# Lock Down CHIPSET_LOCKDOWN_FSP
 	register "common_soc_config" = "{
 		.chipset_lockdown = CHIPSET_LOCKDOWN_COREBOOT,
 	}"

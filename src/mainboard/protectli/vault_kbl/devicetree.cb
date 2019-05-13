@@ -50,10 +50,9 @@ chip soc/intel/skylake
 	register "ScsEmmcHs400Enabled" = "0"
 	register "ScsSdCardEnabled" = "0"
 	register "SkipExtGfxScan" = "1"
-	register "Device4Enable" = "0"
-	register "HeciEnabled" = "0"
-	register "Heci3Enabled" = "0"
-	register "PmTimerDisabled" = "0"
+	register "Device4Enable" = "1"
+	register "HeciEnabled" = "1"
+	register "PmTimerDisabled" = "1"
 	register "SaGv" = "SaGv_Enabled"
 	register "SaImguEnable" = "0"
 	register "IslVrCmd" = "2"
@@ -154,14 +153,14 @@ chip soc/intel/skylake
 	register "SataPortsDevSlp[0]" = "0"
 	register "SataPortsDevSlp[1]" = "0"
 
-	# Enable Root ports. 1-6 for LAN
+	# Enable Root ports. 1-6 for LAN and Root Port 9
 	register "PcieRpEnable[0]" = "1"
 	register "PcieRpEnable[1]" = "1"
 	register "PcieRpEnable[2]" = "1"
 	register "PcieRpEnable[3]" = "1"
 	register "PcieRpEnable[4]" = "1"
 	register "PcieRpEnable[5]" = "1"
-	register "PcieRpEnable[8]" = "1" # WiFi mPCIe
+	register "PcieRpEnable[8]" = "1" # mPCIe WiFi
 
 	# Enable Advanced Error Reporting for RP 1-6, 9
 	register "PcieRpAdvancedErrorReporting[0]" = "1"
@@ -283,14 +282,12 @@ chip soc/intel/skylake
 		device pci 1e.6 off end # SDCard
 		device pci 1f.0 on
 			chip superio/ite/it8772f
-				register "skip_keyboard" = "1"
 				register "peci_tmpin" = "3"
 				register "tmpin1_mode" = "THERMAL_RESISTOR"
 				register "tmpin2_mode" = "THERMAL_RESISTOR"
 				# Enable FAN2 available on fan header
 				register "fan2_enable" = "1"
 				register "fan2_speed" = "0x60"
-
 				device pnp 2e.0 off end # FDC
 				device pnp 2e.1 on # Serial Port 1
 					io 0x60 = 0x3f8
@@ -301,14 +298,8 @@ chip soc/intel/skylake
 					io 0x62 = 0xa30
 					irq 0x70 = 9
 				end
-				device pnp 2e.5 on # Keyboard
-					io 0x60 = 0x60
-					io 0x62 = 0x64
-					irq 0x70 = 1
-				end
-				device pnp 2e.6 on # Mouse
-					irq 0x70 = 12
-				end
+				device pnp 2e.5 off end # Keyboard
+				device pnp 2e.6 off end # Mouse
 				device pnp 2e.7 off end # GPIO
 				device pnp 2e.a off end # IR
 			end

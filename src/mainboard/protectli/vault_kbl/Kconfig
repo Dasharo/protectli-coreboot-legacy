@@ -1,4 +1,4 @@
-if BOARD_PROTECTLI_FW6A || BOARD_PROTECTLI_FW6B || BOARD_PROTECTLI_FW6C
+if BOARD_PROTECTLI_FW6
 
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
@@ -43,12 +43,10 @@ config USE_COREBOOT_NATIVE_MP_INIT
 
 config MAX_CPUS
 	int
-	default 2 if BOARD_PROTECTLI_FW6A
 	default 4
 
 config VGA_BIOS_ID
 	string
-	default "8086,5906" if BOARD_PROTECTLI_FW6A
-	default "8086,5916"
+	default "8086,5916" # 8086,5906 for FW6A
 
 endif

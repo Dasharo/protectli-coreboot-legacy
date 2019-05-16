@@ -50,7 +50,7 @@ chip soc/intel/skylake
 	register "ScsEmmcHs400Enabled" = "0"
 	register "ScsSdCardEnabled" = "0"
 	register "SkipExtGfxScan" = "1"
-	register "Device4Enable" = "1"
+	register "Device4Enable" = "0"
 	register "HeciEnabled" = "1"
 	register "PmTimerDisabled" = "1"
 	register "SaGv" = "SaGv_Enabled"
@@ -308,7 +308,7 @@ chip soc/intel/skylake
 		device pci 1f.2 on  end # Power Management Controller
 		device pci 1f.3 off end # Intel HDA
 		device pci 1f.4 on  end # SMBus
-		device pci 1f.5 on  end # PCH SPI
+		device pci 1f.5 off end # PCH SPI
 		device pci 1f.6 off end # GbE
 	end
 end

@@ -26,11 +26,8 @@ void mainboard_silicon_init_params(FSP_SIL_UPD *params)
 	 * dependencies during hardware initialization. */
 	gpio_configure_pads(gpio_table, ARRAY_SIZE(gpio_table));
 
-	if(CONFIG(BOARD_PROTECTLI_FW6A))
-		params->TurboMode = 0;
-	else
-		params->TurboMode = 1;
-
+	params->TurboMode = 1;
+	params->PchThermalDeviceEnable =0;
 	params->PchPort61hEnable = 1;
 	params->CdClock = 3;
 	params->GmmEnable = 0;

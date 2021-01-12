@@ -24,9 +24,17 @@ config MAINBOARD_DIR
 	string
 	default "protectli/vault_kbl"
 
+config VARIANT_DIR
+	string
+	default	"ylkbrl6" if BOARD_YANLING_YLKBR6L
+
 config MAINBOARD_PART_NUMBER
 	string
 	default "FW6"
+
+config MAINBOARD_FAMILY
+	string
+	default "Protectli_FW6"
 
 config DIMM_MAX
 	int
@@ -40,6 +48,14 @@ config MAX_CPUS
 	int
 	default 4 if BOARD_PROTECTLI_FW6
 	default 8 if BOARD_YANLING_YLKBR6L
+
+config DEVICETREE
+	string
+	default "devicetree.cb"
+
+config OVERRIDE_DEVICETREE
+	string
+	default	"variants/$(CONFIG_VARIANT_DIR)/overridetree.cb"
 
 config VGA_BIOS_ID
 	string

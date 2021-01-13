@@ -17,7 +17,7 @@ void bootblock_mainboard_early_init(void)
 }
 }
 
-if (CONFIG(BOARD_YANLING_YLKBR6L)) {
+if (CONFIG(BOARD_PROTECTLI_FW6D)) {
 #include <superio/ite/it8613e/it8613e.h>
 #include <superio/ite.common/ite.h>
 

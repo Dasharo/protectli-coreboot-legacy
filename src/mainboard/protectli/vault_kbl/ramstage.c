@@ -19,7 +19,7 @@ void mainboard_silicon_init_params(FSP_SIL_UPD *params)
 	params->CdClock = 3;
 	}
 
-	if (CONFIG(BOARD_YANLING_YLKBR6L)) {
+	if (CONFIG(BOARD_PROTECTLI_FW6D)) {
 	gpio_configure_pads(gpio_table, ARRAY_SIZE(gpio_table));
 
 	params->TurboMode = 1;

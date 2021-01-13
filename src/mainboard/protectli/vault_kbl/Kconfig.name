@@ -1,4 +1,4 @@
 config BOARD_PROTECTLI_FW6
 	bool "FW6"
-config BOARD_YANLING_YLKBR6L
-	bool "YLKBR6L"
+config BOARD_PROTECTLI_FW6D 
+	bool "FW6D"

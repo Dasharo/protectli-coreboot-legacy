@@ -14,18 +14,3 @@ config MAINBOARD_VENDOR
 
 endif # VENDOR_PROTECTLI
 
-if VENDOR_YANLING
-
-choice
-	prompt "Mainboard model"
-
-source "src/mainboard/protectli/*/Kconfig.name"
-
-endchoice
-
-source "src/mainboard/protecli/*/Kconfig"
-
-config MAINBOARD_VENDOR
-	default "Yanling"
-
-endif # VENDOR_YANLING

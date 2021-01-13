@@ -1,5 +1,3 @@
 config VENDOR_PROTECTLI
 	bool "Protectli"
 
-config VENDOR_YANLING
-	bool "Yanling"

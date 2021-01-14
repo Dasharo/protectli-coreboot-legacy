@@ -1,4 +1,6 @@
 ## SPDX-License-Identifier: GPL-2.0-or-later
 
-bootblock-y +=bootblock.c
+bootblock-y += bootblock.c
+
+ramstage-y += ramstage.c
 

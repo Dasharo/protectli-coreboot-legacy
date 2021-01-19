@@ -4,7 +4,7 @@
 #include <baseboard/variants.h>
 #include <variant/gpio.h>
 
-void variant_mainboard_silicon_init_params(FSP_SIL_UPD *params)
+void mainboard_silicon_init_params(FSP_SIL_UPD *params)
 {
-
+	variant_mainboard_silicon_init_params(FSP_SIL_UPD *params);
 }

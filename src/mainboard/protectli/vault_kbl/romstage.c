@@ -35,9 +35,6 @@ void mainboard_memory_init_params(FSPM_UPD *mupd)
 
 	mem_cfg->DqPinsInterleaved = 1;
 	mem_cfg->CaVrefConfig = 2;
-	if(CONFIG(BOARD_PROTECTLI_FW6)){	
-		mem_cfg->DdrFreqLimit = 2133;
-	}
 	get_spd_smbus(&blk);
 	dump_spd_info(&blk);
 

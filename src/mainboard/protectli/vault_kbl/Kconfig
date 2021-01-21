@@ -26,6 +26,7 @@ config MAINBOARD_DIR
 
 config VARIANT_DIR
 	string
+	default "fw6" if BOARD_PROTECTLI_FW6
 	default	"fw6d" if BOARD_PROTECTLI_FW6D
 
 config MAINBOARD_PART_NUMBER

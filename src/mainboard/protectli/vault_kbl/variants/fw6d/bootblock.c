@@ -2,7 +2,7 @@
 
 #include <bootblock_common.h>
 #include <superio/ite/it8613e/it8613e.h>
-#include <superio/ite.common/ite.h>
+#include <superio/ite/common/ite.h>
 
 #define GPIO_DEV PNP_DEV(0x2e, IT8613E_GPIO)
 #define UART_DEV PNP_DEV(0x2e, IT8613E_SP1)

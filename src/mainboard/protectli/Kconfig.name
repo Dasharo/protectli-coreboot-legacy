@@ -1,3 +1,2 @@
 config VENDOR_PROTECTLI
 	bool "Protectli"
-

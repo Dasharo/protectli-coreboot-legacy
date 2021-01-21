@@ -13,4 +13,3 @@ config MAINBOARD_VENDOR
 	default "Protectli"
 
 endif # VENDOR_PROTECTLI
-

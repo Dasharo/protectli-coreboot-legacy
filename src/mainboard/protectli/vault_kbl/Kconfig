@@ -1,4 +1,4 @@
-if BOARD_PROTECTLI_FW6 || BOARD_PROTECTLI_FW6D 
+if BOARD_PROTECTLI_FW6 || BOARD_PROTECTLI_FW6D
 
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
@@ -51,7 +51,7 @@ config MAX_CPUS
 
 config DEVICETREE
 	string
-	default "devicetree.cb"
+	default "variants/baseboard/devicetree.cb"
 
 config OVERRIDE_DEVICETREE
 	string
@@ -65,7 +65,7 @@ config VGA_BIOS_ID
 config PXE_ROM_ID
 	string
 	default "8086,150c" if BOARD_PROTECTLI_FW6
-	default "8086,1539" if BOARD_PRTOECTLI_FW6D
+	default "8086,1539" if BOARD_PROTECTLI_FW6D
 
 config CBFS_SIZE
 	hex

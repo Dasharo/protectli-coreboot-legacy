@@ -30,7 +30,8 @@ config VARIANT_DIR
 
 config MAINBOARD_PART_NUMBER
 	string
-	default "FW6"
+	default	"FW6" if BOARD_PROTECTLI_FW6
+	default	"FW6D" if BOARD_PROTECTLI_FW6D
 
 config MAINBOARD_FAMILY
 	string

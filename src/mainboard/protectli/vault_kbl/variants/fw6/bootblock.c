@@ -14,5 +14,3 @@ void bootblock_mainboard_early_init(void)
 	ite_kill_watchdog(GPIO_DEV);
 	ite_enable_serial(UART_DEV, CONFIG_TTYS0_BASE);
 }
-
-

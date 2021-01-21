@@ -35,7 +35,7 @@ config MAINBOARD_PART_NUMBER
 
 config MAINBOARD_FAMILY
 	string
-	default "Protectli_FW6"
+	default "Protectli FW6"
 
 config DIMM_MAX
 	int

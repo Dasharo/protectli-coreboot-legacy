@@ -1,8 +1,5 @@
 chip soc/intel/skylake
 
-	device cpu_cluster 0 on
-		device lapic 0 on end
-	end
 	device domain 0 on
 		device pci 04.0 off end # SA thermal subsystem
 		device pci 05.0 off end # SA IMGU
@@ -20,8 +17,6 @@ chip soc/intel/skylake
 				device pnp 2e.7 off end # GPIO
 				device pnp 2e.a off end # CIR
 			end
-		end # LPC Interface
-
+		end
 	end
-
 end

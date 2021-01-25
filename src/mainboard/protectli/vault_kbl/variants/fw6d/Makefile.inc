@@ -2,5 +2,5 @@
 
 bootblock-y += bootblock.c
 
-ramstage-y += ramstage.c
+/*ramstage-y += ramstage.c*/
 

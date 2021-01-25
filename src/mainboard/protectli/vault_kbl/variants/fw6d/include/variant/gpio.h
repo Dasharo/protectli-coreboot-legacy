@@ -2,8 +2,13 @@
 
 #ifndef _GPIOFW6D_H
 #define _GPIOFW6D_H
+#include <soc/gpe.h>
+#include <soc/gpio.h>
 
-#include <gpio.h>
+#ifndef PAD_TRIG
+#define PAD_TRIG(value) PAD_CFG0_TRIG_##value
+#endif
+
 
 #ifndef __ACPI__
 
@@ -124,7 +129,10 @@ static const struct pad_config gpio_table[] = {
 /* DDPB_CTRLDATA */		PAD_CFG_NF(GPP_E19, DN_20K, DEEP, NF1),
 /* DDPC_CTRLCLK */		PAD_CFG_NF(GPP_E20, NONE, DEEP, NF1),
 /* DDPC_CTRLDATA */		PAD_CFG_NF(GPP_E21, DN_20K, DEEP, NF1),
-/* GPP_E22 */			PAD_CFG_GPIO_BIDIRECT(GPP_E22, 0, NONE, DEEP, OFF, ACPI),
+/*---------------------------------------------------------------------*/
+/* PAD_CFG_GPIO_BIDIRECT(GPP_E22, 0, NONE, DEEP, OFF, ACPI), */
+/* GPP_E22 */			_PAD_CFG_STRUCT(GPP_E22, PAD_RESET(DEEP) | PAD_TRIG(OFF), 0),
+/*---------------------------------------------------------------------*/
 /* GPP_E23 */			PAD_CFG_TERM_GPO(GPP_E23, 1, DN_20K, DEEP),
 /* BATLOW# */			PAD_CFG_NF(GPD0, NONE, PWROK, NF1),	
 /* ACPRESENT */			PAD_CFG_NF(GPD1, NONE, PWROK, NF1),

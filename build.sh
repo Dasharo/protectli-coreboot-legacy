@@ -168,9 +168,8 @@ case "$CMD" in
         buildFW6Image "fw6"
         ;;
     "fw6d")
-        buildFW6Image "fw6d"
+        buildFW6DImage "fw6d"
         ;;
-
     *)
         echo "Invalid command: \"$CMD\""
         ;;

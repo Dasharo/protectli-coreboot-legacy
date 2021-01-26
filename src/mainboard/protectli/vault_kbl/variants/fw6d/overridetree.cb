@@ -2,6 +2,7 @@ chip soc/intel/skylake
 
 		device pci 1e.6 off end # SDXC
 		device pci 1f.0 on
+	device domain 0 on
 			chip superio/ite/it8613e
 				device pnp 2e.0 off end
 				device pnp 2e.1 on

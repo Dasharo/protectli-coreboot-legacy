@@ -24,6 +24,9 @@ chip soc/intel/skylake
 			register "pirqg_routing" = "PCH_IRQ11"
 			register "pirqh_routing" = "PCH_IRQ11"
 			
+			register "PcieRpClkReqSupport[8]" = "1"
+			register "PcieRpClkReqNumber[8]" = "0"
+				
 			device pci 1e.6 off end # SDCard
 			device pci 1f.0 on 
 				chip superio/ite/it8772f

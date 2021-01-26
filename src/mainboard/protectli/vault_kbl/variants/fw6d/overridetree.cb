@@ -1,7 +1,5 @@
 chip soc/intel/skylake
 
-	register "EnableSata" = "1"
-	device domain 0 on
 		device pci 1e.6 off end # SDXC
 		device pci 1f.0 on
 			chip superio/ite/it8613e

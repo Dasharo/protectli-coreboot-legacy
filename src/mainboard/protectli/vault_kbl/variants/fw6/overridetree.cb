@@ -17,17 +17,6 @@ chip soc/intel/skylake
 		register "PmTimerDisabled" = "1"
 		register "SaImguEnable" = "0"
 
-		register "usb2_ports[8]"  = "USB2_PORT_EMPTY"		# Disabled
-		register "usb2_ports[9]"  = "USB2_PORT_EMPTY"		# Disabled
-		register "usb2_ports[10]" = "USB2_PORT_EMPTY"		# Disabled
-		register "usb2_ports[11]" = "USB2_PORT_EMPTY"		# Disabled
-
-		register "usb3_ports[4]" = "USB3_PORT_EMPTY"		# Disabled
-		register "usb3_ports[5]" = "USB3_PORT_EMPTY"		# Disabled
-
-		device cpu_cluster 0 on
-		device lapic 0 on end
-		end
 		device domain 0 on
 			device pci 1e.6 off end # SDCard
 			device pci 1f.0 on 

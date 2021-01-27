@@ -16,13 +16,13 @@ chip soc/intel/skylake
 				# FAN2 available on fan header but unused
 				device pnp 2e.0 off end # FDC
 				device pnp 2e.1 on # Serial Port 1
-				io 0x60 = 0x3f8
-				irq 0x70 = 4
+					io 0x60 = 0x3f8
+					irq 0x70 = 4
 				end
 				device pnp 2e.4 on # Enviroment Controller
-				io 0x60 = 0xa40
-				io 0x62 = 0xa30
-				irq 0x70 = 9
+					io 0x60 = 0xa40
+					io 0x62 = 0xa30
+					irq 0x70 = 9
 				end
 				device pnp 2e.5 off end # Keyboard
 				device pnp 2e.6 off end # Mouse

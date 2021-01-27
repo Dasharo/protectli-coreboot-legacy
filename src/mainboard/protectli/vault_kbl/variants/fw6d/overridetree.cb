@@ -1,14 +1,7 @@
 chip soc/intel/skylake
 	
-	# TODO: Check why protectli used the and WiFi won't work
-	#	for me if I set them -> err: lost pci device
-	# Enable RP 9 CLKREQ# support
-	#register "PcieRpClkReqSupport[8]" = "1"
-	# RP 9 uses CLKREQ0#
-	#register "PcieRpClkReqNumber[8]" = "0"
-	
 	register "usb2_ports[6]" = "USB2_PORT_EMPTY"		# Disabled
-	register "usb2_ports[9]" = "USB2_PORT_SHORT(OC_SKIP)"	# TYPE-A Port
+	register "usb2_ports[9]" = "USB2_PORT_SHORT(OC_SKIP)"	# mPCIe slot
 	device domain 0 on
 		device pci 1f.0 on
 			chip superio/ite/it8613e

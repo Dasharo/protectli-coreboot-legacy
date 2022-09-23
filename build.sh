@@ -27,6 +27,7 @@ function buildImage {
 
 	docker run --rm -it -v $PWD:/home/coreboot/coreboot \
 		-v $HOME/.ssh:/home/coreboot/.ssh \
+		-e "GIT_SSL_NO_VERIFY=true" \
 		-w /home/coreboot/coreboot coreboot/coreboot-sdk:1.52 \
 		/bin/bash -c "make olddefconfig && make && \
 		./build/cbfstool build/coreboot.rom add-int -i 0x85 -n etc/boot-menu-key && \

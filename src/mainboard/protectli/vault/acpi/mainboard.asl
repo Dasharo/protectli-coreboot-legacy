@@ -38,29 +38,21 @@ Scope (\_SB.PCI0.I2C2)
 		Name (_DDN, AUDIO_CODEC_DDN)  // _DDN: DOS Device Name
 		Name (_UID, 1)  // _UID: Unique ID
 
-		Method(_CRS, 0x0, NotSerialized)
+		Name (_CRS, ResourceTemplate ()
 		{
-			Name(SBUF,ResourceTemplate ()
-			{
-				I2CSerialBus(
-					AUDIO_CODEC_I2C_ADDR,
-					ControllerInitiated,
-					400000,
-					AddressingMode7Bit,
-					"\\_SB.PCI0.I2C2",
-				)
-				GpioInt (Edge, ActiveHigh, ExclusiveAndWake,
-					PullNone, , "\\_SB.GPSE")
-					{ JACK_DETECT_GPIO_INDEX }
-			} )
-			Return (SBUF)
-		}
+			I2CSerialBus(
+				AUDIO_CODEC_I2C_ADDR,
+				ControllerInitiated,
+				400000,
+				AddressingMode7Bit,
+				"\\_SB.PCI0.I2C2",
+			)
+			GpioInt (Edge, ActiveHigh, ExclusiveAndWake,
+				PullNone, , "\\_SB.GPSE")
+				{ JACK_DETECT_GPIO_INDEX }
+		})
 
-		Method (_STA)
-		{
-			Return (0xF)
-		}
-
+		Name (_STA, 0xF)
 	}
 }
 
@@ -76,15 +68,11 @@ Scope (\_SB.PCI0.LPEA)
 
 Scope (\_SB.GPNC)
 {
-	Method (_AEI, 0, Serialized)  // _AEI: ACPI Event Interrupts
+	Name (_AEI, ResourceTemplate ()  // _AEI: ACPI Event Interrupts
 	{
-		Name (RBUF, ResourceTemplate ()
-		{
-			GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
-				"\\_SB.GPNC") { BOARD_SCI_GPIO_INDEX }
-		})
-		Return (RBUF)
-	}
+		GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone,,
+			"\\_SB.GPNC") { BOARD_SCI_GPIO_INDEX }
+	})
 
 	Method (_E0F, 0, NotSerialized)  // _Exx: Edge-Triggered GPE
 	{

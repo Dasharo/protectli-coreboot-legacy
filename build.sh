@@ -59,6 +59,8 @@ function buildImage {
 		cd -
 	fi
 
+	git submodule update --init --checkout --recursive
+
 	if [ "$DISTCLEAN" = "true" ]; then
 		dockerShellCmd "make distclean"
 	fi

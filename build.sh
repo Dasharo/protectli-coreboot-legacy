@@ -25,6 +25,8 @@ function buildImage {
 		cd -
 	fi
 
+	git submodule update --init --checkout --recursive
+
 	cp configs/config.protectli_vault_$1 .config
 
 	echo "Building coreboot for Protectli $1"

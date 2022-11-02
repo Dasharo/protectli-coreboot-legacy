@@ -13,6 +13,8 @@ if [ $# -le 0 ]; then
     usage
 fi
 
+DISTCLEAN="${DISTCLEAN:-false}"
+
 function buildImage {
 
 	if [ ! -d 3rdparty/blobs/mainboard/protectli ]; then
@@ -26,6 +28,10 @@ function buildImage {
 	fi
 
 	git submodule update --init --checkout --recursive
+
+	if [ "$DISTCLEAN" = "true" ]; then
+		dockerShellCmd "make distclean"
+	fi
 
 	cp configs/config.protectli_vault_$1 .config
 

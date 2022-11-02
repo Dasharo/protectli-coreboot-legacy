@@ -50,9 +50,13 @@ function buildImage {
 	fi
 
 	if [ ! -d 3rdparty/blobs/mainboard/protectli ]; then
-		wget $PROTECTLI_BLOBS_URL -O protectli_blobs.zip
-		unzip protectli_blobs.zip -d 3rdparty/blobs/mainboard
-		rm protectli_blobs.zip
+		git clone git@github.com:Dasharo/protectli-blobs.git 3rdparty/blobs/mainboard/protectli
+	fi
+
+	if [ -d 3rdparty/blobs/mainboard/protectli ]; then
+		cd 3rdparty/blobs/mainboard/protectli
+		git checkout 82ade4a9681dac0192b7f482a308e55b05edb5d2
+		cd -
 	fi
 
 	if [ "$DISTCLEAN" = "true" ]; then

@@ -30,7 +30,11 @@ function buildImage {
 	git submodule update --init --checkout --recursive
 
 	if [ "$DISTCLEAN" = "true" ]; then
-		dockerShellCmd "make distclean"
+		docker run --rm -it -v $PWD:/home/coreboot/coreboot \
+			-v $HOME/.ssh:/home/coreboot/.ssh \
+			-e "GIT_SSL_NO_VERIFY=true" \
+			-w /home/coreboot/coreboot coreboot/coreboot-sdk:1.52 \
+			/bin/bash -c "make distclean"
 	fi
 
 	cp configs/config.protectli_vault_$1 .config

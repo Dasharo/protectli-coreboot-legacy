@@ -2,7 +2,7 @@ TAG-$(CONFIG_SEABIOS_MASTER)=origin/master
 TAG-$(CONFIG_SEABIOS_STABLE)=a698c8995ffb2838296ec284fe3c4ad33dfca307
 TAG-$(CONFIG_SEABIOS_REVISION)=$(CONFIG_SEABIOS_REVISION_ID)
 
-project_git_repo=git@gitlab.com:3mdeb/protectli/seabios.git
+project_git_repo=https://github.com/Dasharo/SeaBIOS.git
 project_dir=seabios
 
 unexport KCONFIG_AUTOHEADER

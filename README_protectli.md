@@ -26,3 +26,10 @@ git checkout v4.12.0.8
 ```bash
 DISTCLEAN=true ./build.sh fw4b
 ```
+
+## Flashing new firmware
+
+After flashing new firmware image, do a hard reboot. To do a hard reboot simply
+pull the power plug, wait a moment and plug it back in. Powering down the device
+by holding the power button, or even using shutdown/reboot commands can corrupt
+the flash memory and brick your device. Doing a hard reboot avoids this issue.

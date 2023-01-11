@@ -78,4 +78,8 @@ config VGA_BIOS_ID
 
 endif #RUN_FSP_GOP
 
+config FMD_FILE
+	string
+	default "src/mainboard/$(CONFIG_MAINBOARD_DIR)/board.fmd"
+
 endif # BOARD_PROTECTLI_FW2B

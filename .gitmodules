@@ -46,3 +46,6 @@
 	path = 3rdparty/cmocka
 	url =https://review.coreboot.org/cmocka.git
 	update = none
+[submodule "3rdparty/dasharo-blobs"]
+	path = 3rdparty/dasharo-blobs
+	url = https://github.com/Dasharo/dasharo-blobs.git

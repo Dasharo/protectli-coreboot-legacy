@@ -100,4 +100,18 @@ config TIANOCORE_BOOTSPLASH_FILE
 	  If an absolute path is not given, the path will assumed to be
 	  relative to the coreboot root directory.
 
+config EDK2_LAN_ROM_DRIVER
+	string "Optional LAN ROM driver file"
+	help
+	  Integrates LAN ROM driver in TianoCore Payload. Takes an EFI driver
+	  as input.
+
+config EDK2_ENABLE_IPXE
+	bool "Include iPXE in edk2 payload"
+	default n
+	select PXE
+	help
+	  Instructs coreboot build system to build iPXE EFI target and include
+	  it in the EDK2 payload.
+
 endif

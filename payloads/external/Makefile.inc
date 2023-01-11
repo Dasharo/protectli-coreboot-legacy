@@ -120,7 +120,11 @@ payloads/external/depthcharge/depthcharge/build/depthcharge.elf depthcharge: $(D
 
 # Tianocore
 
-payloads/external/tianocore/tianocore/Build/UEFIPAYLOAD.fd tianocore: $(DOTCONFIG)
+ifeq ($(CONFIG_EDK2_ENABLE_IPXE),y)
+IPXE_EFI := payloads/external/iPXE/ipxe/ipxe.rom
+endif
+
+payloads/external/tianocore/tianocore/Build/UEFIPAYLOAD.fd tianocore: $(DOTCONFIG) $(IPXE_EFI)
 	$(MAKE) -C payloads/external/tianocore all \
 		HOSTCC="$(HOSTCC)" \
 		CC="$(HOSTCC)" \
@@ -132,6 +136,8 @@ payloads/external/tianocore/tianocore/Build/UEFIPAYLOAD.fd tianocore: $(DOTCONFI
 		CONFIG_TIANOCORE_UEFIPAYLOAD=$(CONFIG_TIANOCORE_UEFIPAYLOAD) \
 		CONFIG_TIANOCORE_COREBOOTPAYLOAD=$(CONFIG_TIANOCORE_COREBOOTPAYLOAD) \
 		CONFIG_MMCONF_BASE_ADDRESS=$(CONFIG_MMCONF_BASE_ADDRESS) \
+		CONFIG_EDK2_LAN_ROM_DRIVER=$(CONFIG_EDK2_LAN_ROM_DRIVER) \
+		CONFIG_EDK2_IPXE=$(CONFIG_EDK2_ENABLE_IPXE) \
 		GCC_CC_x86_32=$(GCC_CC_x86_32) \
 		GCC_CC_x86_64=$(GCC_CC_x86_64) \
 		GCC_CC_arm=$(GCC_CC_arm) \
@@ -238,13 +244,19 @@ else
 IPXE_SERIAL_CONSOLE = n
 endif
 
+ifneq ($(CONFIG_EDK2_ENABLE_IPXE),y)
 cbfs-files-$(CONFIG_PXE_ROM)$(CONFIG_BUILD_IPXE) += pci$(CONFIG_PXE_ROM_ID).rom
 pci$(CONFIG_PXE_ROM_ID).rom-file := $(PXE_ROM_FILE)
 pci$(CONFIG_PXE_ROM_ID).rom-type := raw
+IPXE_CROSS_COMPILE:="$(CROSS_COMPILE_$(ARCH-ramstage-y))"
+else
+IPXE_CROSS_COMPILE:=$(CROSS_COMPILE_x86_64)
+endif
 
 payloads/external/iPXE/ipxe/ipxe.rom ipxe: $(DOTCONFIG) $(PXE_CONFIG_SCRIPT)
 	$(MAKE) -C payloads/external/iPXE all \
-	CROSS_COMPILE="$(CROSS_COMPILE_$(ARCH-ramstage-y))" \
+	CROSS_COMPILE=$(IPXE_CROSS_COMPILE) \
+	CFLAGS_x86_64="$(CFLAGS_x86_64)" \
 	PXE_ROM_PCI_ID=$(PXE_ROM_PCI_ID) \
 	CONFIG_IPXE_MASTER=$(CONFIG_IPXE_MASTER) \
 	CONFIG_IPXE_STABLE=$(CONFIG_IPXE_STABLE) \
@@ -255,6 +267,8 @@ payloads/external/iPXE/ipxe/ipxe.rom ipxe: $(DOTCONFIG) $(PXE_CONFIG_SCRIPT)
 	CONFIG_HAS_SCRIPT=$(CONFIG_PXE_ADD_SCRIPT) \
 	CONFIG_PXE_NO_PROMPT=$(CONFIG_PXE_NO_PROMPT) \
 	CONFIG_PXE_HAS_HTTPS=$(CONFIG_PXE_HAS_HTTPS) \
+	CONFIG_PXE_CUSTOM_BUILD_ID=$(CONFIG_PXE_CUSTOM_BUILD_ID) \
+	CONFIG_IPXE_BUILD_EFI=$(CONFIG_EDK2_ENABLE_IPXE) \
 	MFLAGS= MAKEFLAGS=
 
 # LinuxBoot

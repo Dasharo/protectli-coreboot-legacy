@@ -10,7 +10,7 @@ export SHELL := env bash
 project_name=Tianocore
 project_dir=$(CURDIR)/tianocore
 project_git_repo=https://github.com/Dasharo/edk2
-project_git_branch=coreboot_fb
+project_git_branch=dasharo
 upstream_git_repo=https://github.com/tianocore/edk2
 
 bootloader=UefiPayloadPkg
@@ -127,7 +127,7 @@ ipxe_rom: $(project_dir)
 	fi \
 
 
-build: update checktools
+build: update checktools lan_rom ipxe_rom
 	unset CC; $(MAKE) -C $(project_dir)/BaseTools
 	echo " build $(project_name) $(TAG)"
 	if [ -n "$(CONFIG_TIANOCORE_BOOTSPLASH_FILE)" ]; then \

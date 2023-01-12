@@ -143,6 +143,7 @@ static int smbios_cpu_vendor(u8 *start)
 static int smbios_processor_name(u8 *start)
 {
 	u32 tmp[13];
+	char *cpu_str;
 	const char *str = "Unknown Processor Name";
 	if (cpu_have_cpuid()) {
 		int i;
@@ -157,16 +158,17 @@ static int smbios_processor_name(u8 *start)
 				tmp[j++] = res.edx;
 			}
 			tmp[12] = 0;
-			for (i = 0; i < 13; i++) {
+			cpu_str = (char *)tmp;
+			for (i = 0; i < 12 * 4; i++) {
 				/* Remove leading spaces from buggy CPUIDs */
-				if (tmp[i] == ' ')
+				if (cpu_str[i] == ' ') {
 					continue;
-				else {
-					str = (const char *)&tmp[i];
+				} else {
+					str = (const char *)&cpu_str[i];
 					break;
 				}
 			}
-			if (i >= 12)
+			if (i >= (12 * 4))
 				str = (const char *)tmp;
 		}
 	}

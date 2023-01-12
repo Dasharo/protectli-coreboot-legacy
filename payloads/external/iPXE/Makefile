@@ -4,9 +4,9 @@
 ##
 ## SPDX-License-Identifier: GPL-2.0-only
 
-# 2019.3 - Last commit of March 2019
+# 2022.1 - Last commit of January 2022
 # When updating, change the name both here and in payloads/external/iPXE/Kconfig
-STABLE_COMMIT_ID=ebf2eaf515e46abd43bc798e7e4ba77bfe529218
+STABLE_COMMIT_ID=6ba671acd922ee046b257c5119b8a0f64d275473
 
 TAG-$(CONFIG_IPXE_MASTER)=origin/master
 TAG-$(CONFIG_IPXE_STABLE)=$(STABLE_COMMIT_ID)
@@ -15,6 +15,24 @@ project_name=iPXE
 project_dir=ipxe
 project_git_repo=https://git.ipxe.org/ipxe.git
 
+unexport KCONFIG_AUTOHEADER
+unexport KCONFIG_AUTOCONFIG
+unexport KCONFIG_DEPENDENCIES
+unexport KCONFIG_SPLITCONFIG
+unexport KCONFIG_TRISTATE
+unexport KCONFIG_NEGATIVES
+
+ifneq ($(CONFIG_PXE_CUSTOM_BUILD_ID),)
+PXE_MAKE_OPTS := BUILD_ID_CMD="echo 0x$(CONFIG_PXE_CUSTOM_BUILD_ID)"
+endif
+
+ifeq ($(CONFIG_IPXE_BUILD_EFI),y)
+IPXE_BUILD_TARGET := bin-x86_64-efi-sb/ipxe.efi
+# Workaround problems with unrecognized ipxe/util/elf2efi relocations
+PXE_MAKE_OPTS += EXTRA_CFLAGS="$(CFLAGS_x86_64) -fno-pic"
+else
+IPXE_BUILD_TARGET := bin/$(PXE_ROM_PCI_ID).rom
+endif
 all: build
 
 $(project_dir):
@@ -64,12 +82,12 @@ endif
 build: config $(CONFIG_SCRIPT)
 ifeq ($(CONFIG_HAS_SCRIPT),y)
 	echo "    MAKE       $(project_name) $(TAG-y) EMBED=$(CONFIG_SCRIPT)"
-	$(MAKE) -C $(project_dir)/src bin/$(PXE_ROM_PCI_ID).rom EMBED=$(CONFIG_SCRIPT)
+	$(MAKE) -C $(project_dir)/src $(IPXE_BUILD_TARGET) EMBED=$(CONFIG_SCRIPT) $(PXE_MAKE_OPTS)
 else
 	echo "    MAKE       $(project_name) $(TAG-y)"
-	$(MAKE) -C $(project_dir)/src bin/$(PXE_ROM_PCI_ID).rom
+	$(MAKE) -C $(project_dir)/src $(IPXE_BUILD_TARGET) $(PXE_MAKE_OPTS)
 endif
-	cp $(project_dir)/src/bin/$(PXE_ROM_PCI_ID).rom $(project_dir)/ipxe.rom
+	cp $(project_dir)/src/$(IPXE_BUILD_TARGET) $(project_dir)/ipxe.rom
 ifeq ($(CONSOLE_SERIAL),yy)
 	cp "$(project_dir)/src/config/console.h.cb" "$(project_dir)/src/config/console.h"
 	cp "$(project_dir)/src/config/serial.h.cb" "$(project_dir)/src/config/serial.h"

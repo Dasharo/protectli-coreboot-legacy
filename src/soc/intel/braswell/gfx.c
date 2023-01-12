@@ -7,10 +7,49 @@
 #include <device/pci_ids.h>
 #include <drivers/intel/gma/opregion.h>
 #include <drivers/intel/gma/i915.h>
+#include <fsp/util.h>
 #include <reg_script.h>
 #include <soc/gfx.h>
 #include <soc/pci_devs.h>
 #include <soc/ramstage.h>
+
+static int is_graphics_disabled(struct device *dev)
+{
+	/* Check if Graphics PCI device is disabled */
+	if (!dev || !dev->enabled)
+		return 1;
+
+	return 0;
+}
+
+static uintptr_t graphics_get_bar(struct device *dev, unsigned long index)
+{
+	struct resource *gm_res;
+
+	gm_res = find_resource(dev, index);
+	if (!gm_res)
+		return 0;
+
+	return gm_res->base;
+}
+
+uintptr_t fsp_soc_get_igd_bar(void)
+{
+	uintptr_t memory_base;
+	struct device *dev = pcidev_path_on_root(PCI_DEVFN(2, 0));
+
+	if (is_graphics_disabled(dev))
+		return 0;
+	/*
+	 * GFX PCI config space offset 0x18 know as Graphics
+	 * Memory Range Address (GMADR)
+	 */
+	memory_base = graphics_get_bar(dev, PCI_BASE_ADDRESS_2);
+	if (!memory_base)
+		printk(BIOS_ERR, "GMADR is not programmed!\n");
+
+	return memory_base;
+}
 
 static const struct reg_script gpu_pre_vbios_script[] = {
 	/* Make sure GFX is bus master with MMIO access */

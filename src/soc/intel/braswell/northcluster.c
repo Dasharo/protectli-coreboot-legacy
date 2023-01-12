@@ -15,6 +15,12 @@
 #include <vendorcode/google/chromeos/chromeos.h>
 #include <stddef.h>
 
+#define CAPID0_A		0xE4
+#define  CAPID_ECCDIS		(1 << 25)
+#define  CAPID_DDPCD		(1 << 14)
+#define  CAPID_PDCD		(1 << 12)
+#define  CAPID_DDRSZ(x)		(((x) >> 19) & 0x3)
+
 /*
  * Host Memory Map:
  *
@@ -151,7 +157,6 @@ static void nc_read_resources(struct device *dev)
 	if (CONFIG(CHROMEOS))
 		chromeos_reserve_ram_oops(dev, index++);
 }
-
 static struct device_operations nc_ops = {
 	.acpi_fill_ssdt	= generate_cpu_entries,
 	.read_resources	= nc_read_resources,

@@ -40,6 +40,7 @@ const char *smbios_system_sku(void);
 
 unsigned int smbios_cpu_get_max_speed_mhz(void);
 unsigned int smbios_cpu_get_current_speed_mhz(void);
+unsigned int smbios_processor_external_clock(void);
 
 const char *smbios_mainboard_manufacturer(void);
 const char *smbios_mainboard_product_name(void);
@@ -160,6 +161,9 @@ typedef enum {
 	MEMORY_TYPE_LOGICAL_NON_VOLATILE_DEVICE = 0x1f,
 	MEMORY_TYPE_HBM = 0x20,
 	MEMORY_TYPE_HBM2 = 0x21,
+	MEMORY_TYPE_DDR5 = 0x22,
+	MEMORY_TYPE_LPDDR5 = 0x23,
+	MEMORY_TYPE_HBM3 = 0x24,
 } smbios_memory_type;
 
 typedef enum {
@@ -208,15 +212,19 @@ typedef enum {
 	SMBIOS_SYSTEM_ENCLOSURE = 3,
 	SMBIOS_PROCESSOR_INFORMATION = 4,
 	SMBIOS_CACHE_INFORMATION = 7,
+	SMBIOS_PORT_CONNECTOR_INFORMATION = 8,
 	SMBIOS_SYSTEM_SLOTS = 9,
 	SMBIOS_OEM_STRINGS = 11,
 	SMBIOS_EVENT_LOG = 15,
 	SMBIOS_PHYS_MEMORY_ARRAY = 16,
 	SMBIOS_MEMORY_DEVICE = 17,
 	SMBIOS_MEMORY_ARRAY_MAPPED_ADDRESS = 19,
+	SMBIOS_MEMORY_DEVICE_MAPPED_ADDRESS = 20,
+	SMBIOS_TEMPERATURE_PROBE = 28,
 	SMBIOS_SYSTEM_BOOT_INFORMATION = 32,
 	SMBIOS_IPMI_DEVICE_INFORMATION = 38,
 	SMBIOS_ONBOARD_DEVICES_EXTENDED_INFORMATION = 41,
+	SMBIOS_TPM_DEVICE = 43,
 	SMBIOS_END_OF_TABLE = 127,
 } smbios_struct_type_t;
 
@@ -394,6 +402,11 @@ struct smbios_type4 {
 	u16 processor_family2;
 	u8 eos[2];
 } __packed;
+
+/* defines for smbios_type4 */
+
+#define SMBIOS_PROCESSOR_STATUS_POPULATED		(1 << 6)
+#define SMBIOS_PROCESSOR_STATUS_CPU_ENABLED		(1 << 0)
 
 /* defines for supported_sram_type/current_sram_type */
 
@@ -665,11 +678,16 @@ enum {
 	SMBIOS_EVENTLOG_STATUS_VALID = 1, /* Bit 0 */
 	SMBIOS_EVENTLOG_STATUS_FULL  = 2, /* Bit 1 */
 };
+#define SMBIOS_USE_EXTENDED_MAX_CAPACITY	(1ULL << 31)
 
-struct smbios_type16 {
+struct smbios_header {
 	u8 type;
 	u8 length;
 	u16 handle;
+} __packed;
+
+struct smbios_type16 {
+	struct smbios_header header;
 	u8 location;
 	u8 use;
 	u8 memory_error_correction;
@@ -681,9 +699,7 @@ struct smbios_type16 {
 } __packed;
 
 struct smbios_type17 {
-	u8 type;
-	u8 length;
-	u16 handle;
+	struct smbios_header header;
 	u16 phys_memory_array_handle;
 	u16 memory_error_information_handle;
 	u16 total_width;
@@ -706,6 +722,31 @@ struct smbios_type17 {
 	u16 minimum_voltage;
 	u16 maximum_voltage;
 	u16 configured_voltage;
+	u8 eos[2];
+} __packed;
+
+struct smbios_type19 {
+	struct smbios_header header;
+	u32 starting_address;
+	u32 ending_address;
+	u16 memory_array_handle;
+	u8 partition_width;
+	u64 extended_starting_address;
+	u64 extended_ending_address;
+	u8 eos[2];
+} __packed;
+
+struct smbios_type20 {
+	struct smbios_header header;
+	u32 addr_start;
+	u32 addr_end;
+	u16 memory_device_handle;
+	u16 memory_array_mapped_address_handle;
+	u8 partition_row_pos;
+	u8 interleave_pos;
+	u8 interleave_depth;
+	u64 ext_addr_start;
+	u64 ext_addr_end;
 	u8 eos[2];
 } __packed;
 
@@ -780,6 +821,8 @@ struct smbios_type127 {
 void smbios_fill_dimm_manufacturer_from_id(uint16_t mod_id,
 	struct smbios_type17 *t);
 void smbios_fill_dimm_locator(const struct dimm_info *dimm,
+	struct smbios_type17 *t);
+void smbios_fill_dimm_asset_tag(const struct dimm_info *dimm,
 	struct smbios_type17 *t);
 
 smbios_board_type smbios_mainboard_board_type(void);

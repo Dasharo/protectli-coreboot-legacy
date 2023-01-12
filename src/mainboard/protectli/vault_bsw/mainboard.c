@@ -2,6 +2,7 @@
 
 #include <arch/io.h>
 #include <arch/mmio.h>
+#include <delay.h>
 #include <device/device.h>
 #include <soc/iomap.h>
 
@@ -32,9 +33,8 @@ static void beep(unsigned int frequency)
 	outb(count & 0xff, 0x42);
 	outb((count >> 8) & 0xff, 0x42);
 
-	// Block for 100 milioseconds
-	int i;
-	for (i = 0; i < 10000; i++) inb(0x61);
+	// Block for 250 milioseconds
+	mdelay(250);
 
 	// Switch off the speaker
 	outb(inb(0x61) & 0xfc, 0x61);

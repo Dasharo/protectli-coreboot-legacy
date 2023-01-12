@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
+#include <assert.h>
 #include <string.h>
 #include <smbios.h>
 #include <console/console.h>
@@ -13,6 +14,7 @@
 #include <spd.h>
 #include <cbmem.h>
 #include <commonlib/helpers.h>
+#include <device/dram/spd.h>
 #include <device/pci_ids.h>
 #include <device/pci_def.h>
 #include <device/pci.h>
@@ -118,6 +120,11 @@ int smbios_string_table_len(u8 *start)
 	return len + 1;
 }
 
+static int smbios_full_table_len(struct smbios_header *header, u8 *str_table_start)
+{
+	return header->length + smbios_string_table_len(str_table_start);
+}
+
 static int smbios_cpu_vendor(u8 *start)
 {
 	if (cpu_have_cpuid()) {
@@ -156,74 +163,16 @@ static int smbios_processor_name(u8 *start)
 	return smbios_add_string(start, str);
 }
 
-/* this function will fill the corresponding manufacturer */
-void smbios_fill_dimm_manufacturer_from_id(uint16_t mod_id,
+__weak void smbios_fill_dimm_asset_tag(const struct dimm_info *dimm,
 	struct smbios_type17 *t)
 {
-	switch (mod_id) {
-	case 0x9b85:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Crucial");
-		break;
-	case 0x4304:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Ramaxel");
-		break;
-	case 0x4f01:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Transcend");
-		break;
-	case 0x9801:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Kingston");
-		break;
-	case 0x987f:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Hynix");
-		break;
-	case 0x9e02:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Corsair");
-		break;
-	case 0xb004:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "OCZ");
-		break;
-	case 0xad80:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Hynix/Hyundai");
-		break;
-	case 0x3486:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Super Talent");
-		break;
-	case 0xcd04:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "GSkill");
-		break;
-	case 0xce80:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Samsung");
-		break;
-	case 0xfe02:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Elpida");
-		break;
-	case 0x2c80:
-		t->manufacturer = smbios_add_string(t->eos,
-						    "Micron");
-		break;
-	default: {
-			char string_buffer[256];
+	char buf[40];
 
-			snprintf(string_buffer, sizeof(string_buffer),
-						"Unknown (%x)", mod_id);
-			t->manufacturer = smbios_add_string(t->eos,
-							    string_buffer);
-			break;
-		}
-	}
+	snprintf(buf, sizeof(buf), "Channel-%d-DIMM-%d-AssetTag",
+		dimm->channel_num, dimm->dimm_num);
+	t->asset_tag = smbios_add_string(t->eos, buf);
 }
+
 /* this function will fill the corresponding locator */
 void __weak smbios_fill_dimm_locator(const struct dimm_info *dimm,
 	struct smbios_type17 *t)
@@ -236,136 +185,6 @@ void __weak smbios_fill_dimm_locator(const struct dimm_info *dimm,
 
 	snprintf(locator, sizeof(locator), "BANK %d", dimm->bank_locator);
 	t->bank_locator = smbios_add_string(t->eos, locator);
-}
-
-static void trim_trailing_whitespace(char *buffer, size_t buffer_size)
-{
-	size_t len = strnlen(buffer, buffer_size);
-
-	if (len == 0)
-		return;
-
-	for (char *p = buffer + len - 1; p >= buffer; --p) {
-		if (*p == ' ')
-			*p = 0;
-		else
-			break;
-	}
-}
-
-/** This function will fill the corresponding part number */
-static void smbios_fill_dimm_part_number(const char *part_number,
-					 struct smbios_type17 *t)
-{
-	int invalid;
-	size_t i, len;
-	char trimmed_part_number[DIMM_INFO_PART_NUMBER_SIZE];
-
-	strncpy(trimmed_part_number, part_number, sizeof(trimmed_part_number));
-	trimmed_part_number[sizeof(trimmed_part_number) - 1] = '\0';
-
-	/*
-	 * SPD mandates that unused characters be represented with a ' '.
-	 * We don't want to publish the whitespace in the SMBIOS tables.
-	 */
-	trim_trailing_whitespace(trimmed_part_number, sizeof(trimmed_part_number));
-
-	len = strlen(trimmed_part_number);
-
-	invalid = 0; /* assume valid */
-	for (i = 0; i < len; i++) {
-		if (trimmed_part_number[i] < ' ') {
-			invalid = 1;
-			trimmed_part_number[i] = '*';
-		}
-	}
-
-	if (len == 0) {
-		/* Null String in Part Number will have "None" instead. */
-		t->part_number = smbios_add_string(t->eos, "None");
-	} else if (invalid) {
-		char string_buffer[sizeof(trimmed_part_number) + 10];
-
-		snprintf(string_buffer, sizeof(string_buffer), "Invalid (%s)",
-			 trimmed_part_number);
-		t->part_number = smbios_add_string(t->eos, string_buffer);
-	} else {
-		t->part_number = smbios_add_string(t->eos, trimmed_part_number);
-	}
-}
-
-/* Encodes the SPD serial number into hex */
-static void smbios_fill_dimm_serial_number(const struct dimm_info *dimm,
-					   struct smbios_type17 *t)
-{
-	char serial[9];
-
-	snprintf(serial, sizeof(serial), "%02hhx%02hhx%02hhx%02hhx",
-		 dimm->serial[0], dimm->serial[1], dimm->serial[2],
-		 dimm->serial[3]);
-
-	t->serial_number = smbios_add_string(t->eos, serial);
-}
-
-static int create_smbios_type17_for_dimm(struct dimm_info *dimm,
-					 unsigned long *current, int *handle)
-{
-	struct smbios_type17 *t = (struct smbios_type17 *)*current;
-
-	memset(t, 0, sizeof(struct smbios_type17));
-	t->memory_type = dimm->ddr_type;
-	t->clock_speed = dimm->ddr_frequency;
-	t->speed = dimm->ddr_frequency;
-	t->type = SMBIOS_MEMORY_DEVICE;
-	if (dimm->dimm_size < 0x7fff) {
-		t->size = dimm->dimm_size;
-	} else {
-		t->size = 0x7fff;
-		t->extended_size = dimm->dimm_size & 0x7fffffff;
-	}
-	t->data_width = 8 * (1 << (dimm->bus_width & 0x7));
-	t->total_width = t->data_width + 8 * ((dimm->bus_width & 0x18) >> 3);
-
-	switch (dimm->mod_type) {
-	case SPD_RDIMM:
-	case SPD_MINI_RDIMM:
-		t->form_factor = MEMORY_FORMFACTOR_RIMM;
-		break;
-	case SPD_UDIMM:
-	case SPD_MICRO_DIMM:
-	case SPD_MINI_UDIMM:
-		t->form_factor = MEMORY_FORMFACTOR_DIMM;
-		break;
-	case SPD_SODIMM:
-		t->form_factor = MEMORY_FORMFACTOR_SODIMM;
-		break;
-	default:
-		t->form_factor = MEMORY_FORMFACTOR_UNKNOWN;
-		break;
-	}
-
-	smbios_fill_dimm_manufacturer_from_id(dimm->mod_id, t);
-	smbios_fill_dimm_serial_number(dimm, t);
-	smbios_fill_dimm_locator(dimm, t);
-
-	/* put '\0' in the end of data */
-	dimm->module_part_number[DIMM_INFO_PART_NUMBER_SIZE - 1] = '\0';
-	smbios_fill_dimm_part_number((char *)dimm->module_part_number, t);
-
-	/* Voltage Levels */
-	t->configured_voltage = dimm->vdd_voltage;
-	t->minimum_voltage = dimm->vdd_voltage;
-	t->maximum_voltage = dimm->vdd_voltage;
-
-	/* Synchronous = 1 */
-	t->type_detail = 0x0080;
-	/* no handle for error information */
-	t->memory_error_information_handle = 0xFFFE;
-	t->attributes = dimm->rank_per_dimm;
-	t->handle = *handle;
-	*handle += 1;
-	t->length = sizeof(struct smbios_type17) - 2;
-	return t->length + smbios_string_table_len(t->eos);
 }
 
 const char *__weak smbios_mainboard_bios_version(void)
@@ -968,9 +787,206 @@ static int smbios_write_type11(unsigned long *current, int *handle)
 	return len;
 }
 
-static int smbios_write_type17(unsigned long *current, int *handle)
+static void *smbios_carve_table(unsigned long start, u8 type, u8 length, u16 handle)
 {
-	int len = sizeof(struct smbios_type17);
+	struct smbios_header *t = (struct smbios_header *)start;
+
+	assert(length >= sizeof(*t));
+	memset(t, 0, length);
+	t->type = type;
+	t->length = length - 2;
+	t->handle = handle;
+	return t;
+}
+
+/* this function will fill the corresponding manufacturer */
+void smbios_fill_dimm_manufacturer_from_id(uint16_t mod_id, struct smbios_type17 *t)
+{
+	const char *const manufacturer = spd_manufacturer_name(mod_id);
+
+	if (manufacturer) {
+		t->manufacturer = smbios_add_string(t->eos, manufacturer);
+	} else {
+		char string_buffer[256];
+
+		snprintf(string_buffer, sizeof(string_buffer), "Unknown (%x)", mod_id);
+		t->manufacturer = smbios_add_string(t->eos, string_buffer);
+	}
+}
+
+static void trim_trailing_whitespace(char *buffer, size_t buffer_size)
+{
+	size_t len = strnlen(buffer, buffer_size);
+
+	if (len == 0)
+		return;
+
+	for (char *p = buffer + len - 1; p >= buffer; --p) {
+		if (*p == ' ')
+			*p = 0;
+		else
+			break;
+	}
+}
+
+/** This function will fill the corresponding part number */
+static void smbios_fill_dimm_part_number(const char *part_number, struct smbios_type17 *t)
+{
+	int invalid;
+	size_t i, len;
+	char trimmed_part_number[DIMM_INFO_PART_NUMBER_SIZE];
+
+	strncpy(trimmed_part_number, part_number, sizeof(trimmed_part_number));
+	trimmed_part_number[sizeof(trimmed_part_number) - 1] = '\0';
+
+	/*
+	 * SPD mandates that unused characters be represented with a ' '.
+	 * We don't want to publish the whitespace in the SMBIOS tables.
+	 */
+	trim_trailing_whitespace(trimmed_part_number, sizeof(trimmed_part_number));
+
+	len = strlen(trimmed_part_number);
+
+	invalid = 0; /* assume valid */
+	for (i = 0; i < len; i++) {
+		if (trimmed_part_number[i] < ' ') {
+			invalid = 1;
+			trimmed_part_number[i] = '*';
+		}
+	}
+
+	if (len == 0) {
+		/* Null String in Part Number will have "None" instead. */
+		t->part_number = smbios_add_string(t->eos, "None");
+	} else if (invalid) {
+		char string_buffer[sizeof(trimmed_part_number) + 10];
+
+		snprintf(string_buffer, sizeof(string_buffer), "Invalid (%s)",
+			 trimmed_part_number);
+		t->part_number = smbios_add_string(t->eos, string_buffer);
+	} else {
+		t->part_number = smbios_add_string(t->eos, trimmed_part_number);
+	}
+}
+
+/* Encodes the SPD serial number into hex */
+static void smbios_fill_dimm_serial_number(const struct dimm_info *dimm,
+					   struct smbios_type17 *t)
+{
+	char serial[9];
+
+	snprintf(serial, sizeof(serial), "%02hhx%02hhx%02hhx%02hhx",
+		 dimm->serial[0], dimm->serial[1], dimm->serial[2], dimm->serial[3]);
+
+	t->serial_number = smbios_add_string(t->eos, serial);
+}
+
+static int create_smbios_type17_for_dimm(struct dimm_info *dimm,
+					 unsigned long *current, int *handle,
+					 int type16_handle)
+{
+	struct spd_info info;
+	get_spd_info(dimm->ddr_type, dimm->mod_type, &info);
+
+	struct smbios_type17 *t = smbios_carve_table(*current, SMBIOS_MEMORY_DEVICE,
+						     sizeof(*t), *handle);
+
+	t->memory_type = dimm->ddr_type;
+	if (dimm->configured_speed_mts != 0)
+		t->clock_speed = dimm->configured_speed_mts;
+	else
+		t->clock_speed = dimm->ddr_frequency;
+	if (dimm->max_speed_mts != 0)
+		t->speed = dimm->max_speed_mts;
+	else
+		t->speed = dimm->ddr_frequency;
+	if (dimm->dimm_size < 0x7fff) {
+		t->size = dimm->dimm_size;
+	} else {
+		t->size = 0x7fff;
+		t->extended_size = dimm->dimm_size & 0x7fffffff;
+	}
+	t->data_width = 8 * (1 << (dimm->bus_width & 0x7));
+	t->total_width = t->data_width + 8 * ((dimm->bus_width & 0x18) >> 3);
+	t->form_factor = info.form_factor;
+
+	smbios_fill_dimm_manufacturer_from_id(dimm->mod_id, t);
+	smbios_fill_dimm_serial_number(dimm, t);
+	smbios_fill_dimm_asset_tag(dimm, t);
+	smbios_fill_dimm_locator(dimm, t);
+
+	/* put '\0' in the end of data */
+	dimm->module_part_number[DIMM_INFO_PART_NUMBER_SIZE - 1] = '\0';
+	smbios_fill_dimm_part_number((char *)dimm->module_part_number, t);
+
+	/* Voltage Levels */
+	t->configured_voltage = dimm->vdd_voltage;
+	t->minimum_voltage = dimm->vdd_voltage;
+	t->maximum_voltage = dimm->vdd_voltage;
+
+	/* Fill in type detail */
+	t->type_detail = info.type_detail;
+
+	/* Synchronous = 1 */
+	t->type_detail |= MEMORY_TYPE_DETAIL_SYNCHRONOUS;
+	/* no handle for error information */
+	t->memory_error_information_handle = 0xFFFE;
+	t->attributes = dimm->rank_per_dimm;
+	t->phys_memory_array_handle = type16_handle;
+
+	*handle += 1;
+	return smbios_full_table_len(&t->header, t->eos);
+}
+
+
+static int smbios_write_type16(unsigned long *current, int *handle)
+{
+	int i;
+	uint64_t max_capacity;
+
+	struct memory_info *meminfo;
+	meminfo = cbmem_find(CBMEM_ID_MEMINFO);
+	if (meminfo == NULL)
+		return 0;	/* can't find mem info in cbmem */
+
+	printk(BIOS_INFO, "Create SMBIOS type 16\n");
+
+	if (meminfo->max_capacity_mib == 0 || meminfo->number_of_devices == 0) {
+		/* Fill in defaults if not provided */
+		meminfo->number_of_devices = 0;
+		meminfo->max_capacity_mib = 0;
+		for (i = 0; i < meminfo->dimm_cnt && i < ARRAY_SIZE(meminfo->dimm); i++) {
+			meminfo->max_capacity_mib += meminfo->dimm[i].dimm_size;
+			meminfo->number_of_devices += !!meminfo->dimm[i].dimm_size;
+		}
+	}
+
+	struct smbios_type16 *t = smbios_carve_table(*current, SMBIOS_PHYS_MEMORY_ARRAY,
+						     sizeof(*t), *handle);
+
+	t->location = MEMORY_ARRAY_LOCATION_SYSTEM_BOARD;
+	t->use = MEMORY_ARRAY_USE_SYSTEM;
+	t->memory_error_correction = meminfo->ecc_type;
+
+	/* no error information handle available */
+	t->memory_error_information_handle = 0xFFFE;
+	max_capacity = meminfo->max_capacity_mib;
+	if (max_capacity * (MiB / KiB) < SMBIOS_USE_EXTENDED_MAX_CAPACITY)
+		t->maximum_capacity = max_capacity * (MiB / KiB);
+	else {
+		t->maximum_capacity = SMBIOS_USE_EXTENDED_MAX_CAPACITY;
+		t->extended_maximum_capacity = max_capacity * MiB;
+	}
+	t->number_of_memory_devices = meminfo->number_of_devices;
+
+	const int len = smbios_full_table_len(&t->header, t->eos);
+	*current += len;
+	(*handle)++;
+	return len;
+}
+
+static int smbios_write_type17(unsigned long *current, int *handle, int type16)
+{
 	int totallen = 0;
 	int i;
 
@@ -980,13 +996,110 @@ static int smbios_write_type17(unsigned long *current, int *handle)
 		return 0;	/* can't find mem info in cbmem */
 
 	printk(BIOS_INFO, "Create SMBIOS type 17\n");
-	for (i = 0; i < meminfo->dimm_cnt && i < ARRAY_SIZE(meminfo->dimm);
-		i++) {
+	for (i = 0; i < meminfo->dimm_cnt && i < ARRAY_SIZE(meminfo->dimm); i++) {
 		struct dimm_info *dimm;
 		dimm = &meminfo->dimm[i];
-		len = create_smbios_type17_for_dimm(dimm, current, handle);
+		/*
+		 * Windows 10 GetPhysicallyInstalledSystemMemory functions reads SMBIOS tables
+		 * type 16 and type 17. The type 17 tables need to point to a type 16 table.
+		 * Otherwise, the physical installed memory size is guessed from the system
+		 * memory map, which results in a slightly smaller value than the actual size.
+		 */
+		const int len = create_smbios_type17_for_dimm(dimm, current, handle, type16);
 		*current += len;
 		totallen += len;
+	}
+	return totallen;
+}
+
+static int smbios_write_type19(unsigned long *current, int *handle, int type16)
+{
+	int i;
+
+	struct memory_info *meminfo;
+	meminfo = cbmem_find(CBMEM_ID_MEMINFO);
+	if (meminfo == NULL)
+		return 0;	/* can't find mem info in cbmem */
+
+	struct smbios_type19 *t = smbios_carve_table(*current,
+						     SMBIOS_MEMORY_ARRAY_MAPPED_ADDRESS,
+						     sizeof(*t), *handle);
+
+	t->memory_array_handle = type16;
+
+	for (i = 0; i < meminfo->dimm_cnt && i < ARRAY_SIZE(meminfo->dimm); i++) {
+		if (meminfo->dimm[i].dimm_size > 0) {
+			t->extended_ending_address += meminfo->dimm[i].dimm_size;
+			t->partition_width++;
+		}
+	}
+	t->extended_ending_address *= MiB;
+
+	/* Check if it fits into regular address */
+	if (t->extended_ending_address >= KiB &&
+	    t->extended_ending_address < 0x40000000000ULL) {
+		/*
+		 * FIXME: The starting address is SoC specific, but SMBIOS tables are only
+		 * exported on x86 where it's always 0.
+		 */
+
+		t->starting_address = 0;
+		t->ending_address = t->extended_ending_address / KiB - 1;
+		t->extended_starting_address = ~0;
+		t->extended_ending_address = ~0;
+	} else {
+		t->starting_address = ~0;
+		t->ending_address = ~0;
+		t->extended_starting_address = 0;
+		t->extended_ending_address--;
+	}
+
+	const int len = smbios_full_table_len(&t->header, t->eos);
+	*current += len;
+	*handle += 1;
+	return len;
+}
+
+static int smbios_write_type20_table(unsigned long *current, int *handle, u32 addr_start,
+		u32 addr_end, int type17_handle, int type19_handle)
+{
+	struct smbios_type20 *t = smbios_carve_table(*current, SMBIOS_MEMORY_DEVICE_MAPPED_ADDRESS,
+						     sizeof(*t), *handle);
+
+	t->memory_device_handle = type17_handle;
+	t->memory_array_mapped_address_handle = type19_handle;
+	t->addr_start = addr_start;
+	t->addr_end = addr_end;
+	t->partition_row_pos = 0xff;
+	t->interleave_pos = 0xff;
+	t->interleave_depth = 0xff;
+
+	const int len = smbios_full_table_len(&t->header, t->eos);
+	*current += len;
+	*handle += 1;
+	return len;
+}
+
+static int smbios_write_type20(unsigned long *current, int *handle,
+		int type17_handle, int type19_handle)
+{
+	u32 start_addr = 0;
+	int totallen = 0;
+	int i;
+
+	struct memory_info *meminfo;
+	meminfo = cbmem_find(CBMEM_ID_MEMINFO);
+	if (meminfo == NULL)
+		return 0;	/* can't find mem info in cbmem */
+
+	printk(BIOS_INFO, "Create SMBIOS type 20\n");
+	for (i = 0; i < meminfo->dimm_cnt && i < ARRAY_SIZE(meminfo->dimm); i++) {
+		struct dimm_info *dimm;
+		dimm = &meminfo->dimm[i];
+		u32 end_addr = start_addr + (dimm->dimm_size << 10) - 1;
+		totallen += smbios_write_type20_table(current, handle, start_addr, end_addr,
+				type17_handle, type19_handle);
+		start_addr = end_addr + 1;
 	}
 	return totallen;
 }
@@ -1206,8 +1319,14 @@ unsigned long smbios_write_tables(unsigned long current)
 	if (CONFIG(ELOG))
 		update_max(len, max_struct_size,
 			elog_smbios_write_type15(&current,handle++));
-	update_max(len, max_struct_size, smbios_write_type17(&current,
-		&handle));
+	const int type16 = handle;
+	update_max(len, max_struct_size, smbios_write_type16(&current, &handle));
+	const int type17 = handle;
+	update_max(len, max_struct_size, smbios_write_type17(&current, &handle, type16));
+	const int type19 = handle;
+	update_max(len, max_struct_size, smbios_write_type19(&current, &handle, type16));
+	update_max(len, max_struct_size,
+			smbios_write_type20(&current, &handle, type17, type19));
 	update_max(len, max_struct_size, smbios_write_type32(&current,
 		handle++));
 

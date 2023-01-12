@@ -27,11 +27,10 @@
  *
  * @param type DIMM type. This is byte[3] of the SPD.
  */
-int spd_dimm_is_registered_ddr3(enum spd_dimm_type type)
+int spd_dimm_is_registered_ddr3(enum spd_dimm_type_ddr3 type)
 {
-	if ((type == SPD_DIMM_TYPE_RDIMM)
-	    | (type == SPD_DIMM_TYPE_MINI_RDIMM)
-	    | (type == SPD_DIMM_TYPE_72B_SO_RDIMM))
+	if ((type == SPD_DDR3_DIMM_TYPE_RDIMM) | (type == SPD_DDR3_DIMM_TYPE_MINI_RDIMM) |
+			(type == SPD_DDR3_DIMM_TYPE_72B_SO_RDIMM))
 		return 1;
 
 	return 0;
@@ -98,14 +97,14 @@ u16 spd_ddr3_calc_unique_crc(u8 *spd, int len)
  *		SPD_STATUS_INVALID_FIELD -- A field with an invalid value was
  *					    detected.
  */
-int spd_decode_ddr3(dimm_attr * dimm, spd_raw_data spd)
+int spd_decode_ddr3(struct dimm_attr_ddr3_st *dimm, spd_raw_data spd)
 {
 	int ret;
 	u16 crc, spd_crc;
 	u8 capacity_shift, bus_width;
 	u8 reg8;
-	u32 mtb;		/* medium time base */
-	u32 ftb;		/* fine time base */
+	u32 mtb; /* medium time base */
+	u32 ftb; /* fine time base */
 	unsigned int val;
 
 	ret = SPD_STATUS_OK;
@@ -233,13 +232,13 @@ int spd_decode_ddr3(dimm_attr * dimm, spd_raw_data spd)
 	/* Capacity is 256Mbit multiplied by the power of 2 specified in
 	 * capacity_shift
 	 * The rest is the JEDEC formula */
-	dimm->size_mb = ((1 << (capacity_shift + (25 - 20))) * bus_width
-			 * dimm->ranks) / dimm->width;
+	dimm->size_mb =
+		((1 << (capacity_shift + (25 - 20))) * bus_width * dimm->ranks) / dimm->width;
 
 	/* Medium Timebase =
 	 *   Medium Timebase (MTB) Dividend /
 	 *   Medium Timebase (MTB) Divisor */
-	mtb = (((u32) spd[10]) << 8) / spd[11];
+	mtb = (((u32)spd[10]) << 8) / spd[11];
 
 	/* SDRAM Minimum Cycle Time (tCKmin) */
 	dimm->tCK = spd[12] * mtb;
@@ -281,23 +280,22 @@ int spd_decode_ddr3(dimm_attr * dimm, spd_raw_data spd)
 		/* Fine timebase (1/256 ps) =
 		 *   Fine Timebase (FTB) Dividend /
 		 *   Fine Timebase (FTB) Divisor */
-		ftb = (((u16) spd[9] & 0xf0) << 4) / (spd[9] & 0x0f);
+		ftb = (((u16)spd[9] & 0xf0) << 4) / (spd[9] & 0x0f);
 
 		/* SPD recommends to round up the MTB part and use a negative
 		 * FTB, so a negative rounding should be always safe */
 
 		/* SDRAM Minimum Cycle Time (tCKmin) correction */
-		dimm->tCK += (s32)((s8) spd[34] * ftb - 500) / 1000;
+		dimm->tCK += (s32)((s8)spd[34] * ftb - 500) / 1000;
 		/* Minimum CAS Latency Time (tAAmin) correction */
-		dimm->tAA += (s32)((s8) spd[35] * ftb - 500) / 1000;
+		dimm->tAA += (s32)((s8)spd[35] * ftb - 500) / 1000;
 		/* Minimum RAS# to CAS# Delay Time (tRCDmin) correction */
-		dimm->tRCD += (s32)((s8) spd[36] * ftb - 500) / 1000;
+		dimm->tRCD += (s32)((s8)spd[36] * ftb - 500) / 1000;
 		/* Minimum Row Precharge Delay Time (tRPmin) correction */
-		dimm->tRP += (s32)((s8) spd[37] * ftb - 500) / 1000;
+		dimm->tRP += (s32)((s8)spd[37] * ftb - 500) / 1000;
 		/* Minimum Active to Active/Refresh Delay Time (tRCmin) corr. */
-		dimm->tRC += (s32)((s8) spd[38] * ftb - 500) / 1000;
-	}
-	else {
+		dimm->tRC += (s32)((s8)spd[38] * ftb - 500) / 1000;
+	} else {
 		printram(" no\n");
 	}
 
@@ -347,8 +345,7 @@ int spd_decode_ddr3(dimm_attr * dimm, spd_raw_data spd)
 	reg8 = spd[32];
 	if (reg8 & 0x80)
 		dimm->flags.therm_sensor = 1;
-	printram("  Thermal sensor     : %s\n",
-		 dimm->flags.therm_sensor ? "yes" : "no");
+	printram("  Thermal sensor     : %s\n", dimm->flags.therm_sensor ? "yes" : "no");
 
 	/*  SDRAM Device Type */
 	printram("  Standard SDRAM     : %s\n", (spd[33] & 0x80) ? "no" : "yes");
@@ -356,8 +353,7 @@ int spd_decode_ddr3(dimm_attr * dimm, spd_raw_data spd)
 	if (spd[63] & 0x01) {
 		dimm->flags.pins_mirrored = 1;
 	}
-	printram("  Rank1 Address bits : %s\n",
-			(spd[63] & 0x01) ? "mirrored" : "normal");
+	printram("  Rank1 Address bits : %s\n", (spd[63] & 0x01) ? "mirrored" : "normal");
 
 	dimm->reference_card = spd[62] & 0x1f;
 	printram("  DIMM Reference card: %c\n", 'A' + dimm->reference_card);
@@ -394,13 +390,12 @@ int spd_decode_ddr3(dimm_attr * dimm, spd_raw_data spd)
  *		SPD_STATUS_INVALID_FIELD -- A field with an invalid value was
  *					    detected.
  */
-int spd_xmp_decode_ddr3(dimm_attr *dimm,
-		       spd_raw_data spd,
-		       enum ddr3_xmp_profile profile)
+int spd_xmp_decode_ddr3(struct dimm_attr_ddr3_st *dimm, spd_raw_data spd,
+			enum ddr3_xmp_profile profile)
 {
 	int ret;
-	u32 mtb;		/* medium time base */
-	u8 *xmp;		/* pointer to XMP profile data */
+	u32 mtb; /* medium time base */
+	u8 *xmp; /* pointer to XMP profile data */
 
 	/* need a valid SPD */
 	ret = spd_decode_ddr3(dimm, spd);
@@ -427,7 +422,7 @@ int spd_xmp_decode_ddr3(dimm_attr *dimm,
 		/* Medium Timebase =
 		 *   Medium Timebase (MTB) Dividend /
 		 *   Medium Timebase (MTB) Divisor */
-		mtb = (((u32) spd[180]) << 8) / spd[181];
+		mtb = (((u32)spd[180]) << 8) / spd[181];
 
 		dimm->dimms_per_channel = ((spd[178] >> 2) & 0x3) + 1;
 	} else {
@@ -442,13 +437,12 @@ int spd_xmp_decode_ddr3(dimm_attr *dimm,
 		/* Medium Timebase =
 		 *   Medium Timebase (MTB) Dividend /
 		 *   Medium Timebase (MTB) Divisor */
-		mtb = (((u32) spd[182]) << 8) / spd[183];
+		mtb = (((u32)spd[182]) << 8) / spd[183];
 
 		dimm->dimms_per_channel = ((spd[178] >> 4) & 0x3) + 1;
 	}
 
-	printram("  Max DIMMs/channel  : %u\n",
-			dimm->dimms_per_channel);
+	printram("  Max DIMMs/channel  : %u\n", dimm->dimms_per_channel);
 
 	printram("  XMP Revision       : %u.%u\n", spd[179] >> 4, spd[179] & 0xf);
 
@@ -493,7 +487,6 @@ int spd_xmp_decode_ddr3(dimm_attr *dimm,
 	return ret;
 }
 
-
 /**
  * Fill cbmem with information for SMBIOS type 17.
  *
@@ -504,9 +497,8 @@ int spd_xmp_decode_ddr3(dimm_attr *dimm,
  *
  * @return CB_SUCCESS if DIMM info was written
  */
-enum cb_err spd_add_smbios17(const u8 channel, const u8 slot,
-			     const u16 selected_freq,
-			     const dimm_attr *info)
+enum cb_err spd_add_smbios17(const u8 channel, const u8 slot, const u16 selected_freq,
+			     const struct dimm_attr_ddr3_st *info)
 {
 	struct memory_info *mem_info;
 	struct dimm_info *dimm;
@@ -519,8 +511,7 @@ enum cb_err spd_add_smbios17(const u8 channel, const u8 slot,
 	if (!mem_info) {
 		mem_info = cbmem_add(CBMEM_ID_MEMINFO, sizeof(*mem_info));
 
-		printk(BIOS_DEBUG, "CBMEM entry for DIMM info: %p\n",
-				mem_info);
+		printk(BIOS_DEBUG, "CBMEM entry for DIMM info: %p\n", mem_info);
 		if (!mem_info)
 			return CB_ERR;
 
@@ -528,8 +519,7 @@ enum cb_err spd_add_smbios17(const u8 channel, const u8 slot,
 	}
 
 	if (mem_info->dimm_cnt >= ARRAY_SIZE(mem_info->dimm)) {
-		printk(BIOS_WARNING, "BUG: Too many DIMM infos for %s.\n",
-			__func__);
+		printk(BIOS_WARNING, "BUG: Too many DIMM infos for %s.\n", __func__);
 		return CB_ERR;
 	}
 
@@ -545,22 +535,22 @@ enum cb_err spd_add_smbios17(const u8 channel, const u8 slot,
 		dimm->mod_id = info->manufacturer_id;
 
 		switch (info->dimm_type) {
-		case SPD_DIMM_TYPE_SO_DIMM:
-			dimm->mod_type = SPD_SODIMM;
+		case SPD_DDR3_DIMM_TYPE_SO_DIMM:
+			dimm->mod_type = DDR3_SPD_SODIMM;
 			break;
-		case SPD_DIMM_TYPE_72B_SO_CDIMM:
-			dimm->mod_type = SPD_72B_SO_CDIMM;
+		case SPD_DDR3_DIMM_TYPE_72B_SO_CDIMM:
+			dimm->mod_type = DDR3_SPD_72B_SO_CDIMM;
 			break;
-		case SPD_DIMM_TYPE_72B_SO_RDIMM:
-			dimm->mod_type = SPD_72B_SO_RDIMM;
+		case SPD_DDR3_DIMM_TYPE_72B_SO_RDIMM:
+			dimm->mod_type = DDR3_SPD_72B_SO_RDIMM;
 			break;
-		case SPD_DIMM_TYPE_UDIMM:
-			dimm->mod_type = SPD_UDIMM;
+		case SPD_DDR3_DIMM_TYPE_UDIMM:
+			dimm->mod_type = DDR3_SPD_UDIMM;
 			break;
-		case SPD_DIMM_TYPE_RDIMM:
-			dimm->mod_type = SPD_RDIMM;
+		case SPD_DDR3_DIMM_TYPE_RDIMM:
+			dimm->mod_type = DDR3_SPD_RDIMM;
 			break;
-		case SPD_DIMM_TYPE_UNDEFINED:
+		case SPD_DDR3_DIMM_TYPE_UNDEFINED:
 		default:
 			dimm->mod_type = SPD_UNDEFINED;
 			break;
@@ -593,12 +583,12 @@ static void print_ns(const char *msg, u32 val)
 /**
 * \brief Print the info in DIMM
 *
-* Print info about the DIMM. Useful to use when CONFIG_DEBUG_RAM_SETUP is
+* Print info about the DIMM. Useful to use when CONFIG(DEBUG_RAM_SETUP) is
 * selected, or for a purely informative output.
 *
 * @param dimm pointer to already decoded @ref dimm_attr structure
 */
-void dram_print_spd_ddr3(const dimm_attr * dimm)
+void dram_print_spd_ddr3(const struct dimm_attr_ddr3_st *dimm)
 {
 	u16 val16;
 	int i;
@@ -636,229 +626,5 @@ void dram_print_spd_ddr3(const dimm_attr * dimm)
 	if (dimm->tCWL)
 		print_ns("  tCWLmin           : ", dimm->tCWL);
 	if (dimm->tCMD)
-		printk(BIOS_INFO, "  tCMDmin           : %3u\n",
-		       DIV_ROUND_UP(dimm->tCMD, 256));
-}
-
-/*==============================================================================
- *= DDR3 MRS helpers
- *----------------------------------------------------------------------------*/
-
-/*
- * MRS command structure:
- * cmd[15:0] = Address pins MA[15:0]
- * cmd[18:16] = Bank address BA[2:0]
- */
-
-/* Map tWR value to a bitmask of the MR0 cycle */
-static u16 ddr3_twr_to_mr0_map(u8 twr)
-{
-	if ((twr >= 5) && (twr <= 8))
-		return (twr - 4) << 9;
-
-	/*
-	 * From 8T onwards, we can only use even values. Round up if we are
-	 * given an odd value.
-	 */
-	if ((twr >= 9) && (twr <= 14))
-		return ((twr + 1) >> 1) << 9;
-
-	/* tWR == 16T is [000] */
-	return 0;
-}
-
-/* Map the CAS latency to a bitmask for the MR0 cycle */
-static u16 ddr3_cas_to_mr0_map(u8 cas)
-{
-	u16 mask = 0;
-	/* A[6:4] are bits [2:0] of (CAS - 4) */
-	mask = ((cas - 4) & 0x07) << 4;
-
-	/* A2 is the MSB of (CAS - 4) */
-	if ((cas - 4) & (1 << 3))
-		mask |= (1 << 2);
-
-	return mask;
-}
-
-/**
- * \brief Get command address for a DDR3 MR0 command
- *
- * The DDR3 specification only covers odd write_recovery up to 7T. If an odd
- * write_recovery greater than 7 is specified, it will be rounded up. If a tWR
- * greater than 8 is specified, it is recommended to explicitly round it up or
- * down before calling this function.
- *
- * write_recovery and cas are given in clock cycles. For example, a CAS of 7T
- * should be given as 7.
- *
- * @param precharge_pd
- * @param write_recovery Write recovery latency, tWR in clock cycles.
- * @param dll_reset
- * @param mode
- * @param cas CAS latency in clock cycles.
- * @param burst_type
- * @param burst_length
- */
-mrs_cmd_t ddr3_get_mr0(enum ddr3_mr0_precharge precharge_pd,
-		       u8 write_recovery,
-		       enum ddr3_mr0_dll_reset dll_reset,
-		       enum ddr3_mr0_mode mode,
-		       u8 cas,
-		       enum ddr3_mr0_burst_type burst_type,
-		       enum ddr3_mr0_burst_length burst_length)
-{
-	mrs_cmd_t cmd = 0 << 16;
-
-	if (precharge_pd == DDR3_MR0_PRECHARGE_FAST)
-		cmd |= (1 << 12);
-
-	cmd |= ddr3_twr_to_mr0_map(write_recovery);
-
-	if (dll_reset == DDR3_MR0_DLL_RESET_YES)
-		cmd |= (1 << 8);
-
-	if (mode == DDR3_MR0_MODE_TEST)
-		cmd |= (1 << 7);
-
-	cmd |= ddr3_cas_to_mr0_map(cas);
-
-	if (burst_type == DDR3_MR0_BURST_TYPE_INTERLEAVED)
-		cmd |= (1 << 3);
-
-	cmd |= (burst_length & 0x03) << 0;
-
-	return cmd;
-}
-
-static u16 ddr3_rtt_nom_to_mr1_map(enum ddr3_mr1_rtt_nom rtt_nom)
-{
-	u16 mask = 0;
-	/* A9 <-> rtt_nom[2] */
-	if (rtt_nom & (1 << 2))
-		mask |= (1 << 9);
-	/* A6 <-> rtt_nom[1] */
-	if (rtt_nom & (1 << 1))
-		mask |= (1 << 6);
-	/* A2 <-> rtt_nom[0] */
-	if (rtt_nom & (1 << 0))
-		mask |= (1 << 2);
-
-	return mask;
-}
-
-static u16 ddr3_ods_to_mr1_map(enum ddr3_mr1_ods ods)
-{
-	u16 mask = 0;
-	/* A5 <-> ods[1] */
-	if (ods & (1 << 1))
-		mask |= (1 << 5);
-	/* A1 <-> ods[0] */
-	if (ods & (1 << 0))
-		mask |= (1 << 1);
-
-	return mask;
-}
-
-/**
- * \brief Get command address for a DDR3 MR1 command
- */
-mrs_cmd_t ddr3_get_mr1(enum ddr3_mr1_qoff qoff,
-		       enum ddr3_mr1_tqds tqds,
-		       enum ddr3_mr1_rtt_nom rtt_nom,
-		       enum ddr3_mr1_write_leveling write_leveling,
-		       enum ddr3_mr1_ods ods,
-		       enum ddr3_mr1_additive_latency additive_latency,
-		       enum ddr3_mr1_dll dll_disable)
-{
-	mrs_cmd_t cmd = 1 << 16;
-
-	if (qoff == DDR3_MR1_QOFF_DISABLE)
-		cmd |= (1 << 12);
-
-	if (tqds == DDR3_MR1_TQDS_ENABLE)
-		cmd |= (1 << 11);
-
-	cmd |= ddr3_rtt_nom_to_mr1_map(rtt_nom);
-
-	if (write_leveling == DDR3_MR1_WRLVL_ENABLE)
-		cmd |= (1 << 7);
-
-	cmd |= ddr3_ods_to_mr1_map(ods);
-
-	cmd |= (additive_latency & 0x03) << 3;
-
-	if (dll_disable == DDR3_MR1_DLL_DISABLE)
-		cmd |= (1 << 0);
-
-	return cmd;
-}
-
-/**
- * \brief Get command address for a DDR3 MR2 command
- *
- * cas_cwl is given in clock cycles. For example, a cas_cwl of 7T should be
- * given as 7.
- *
- * @param rtt_wr
- * @param extended_temp
- * @param self_refresh
- * @param cas_cwl CAS write latency in clock cycles.
- */
-
-mrs_cmd_t ddr3_get_mr2(enum ddr3_mr2_rttwr rtt_wr,
-		       enum ddr3_mr2_srt_range extended_temp,
-		       enum ddr3_mr2_asr self_refresh, u8 cas_cwl)
-{
-	mrs_cmd_t cmd = 2 << 16;
-
-	cmd |= (rtt_wr & 0x03) << 9;
-
-	if (extended_temp == DDR3_MR2_SRT_EXTENDED)
-		cmd |= (1 << 7);
-
-	if (self_refresh == DDR3_MR2_ASR_AUTO)
-		cmd |= (1 << 6);
-
-	cmd |= ((cas_cwl - 5) & 0x07) << 3;
-
-	return cmd;
-}
-
-/**
- * \brief Get command address for a DDR3 MR3 command
- *
- * @param dataflow_from_mpr Specify a non-zero value to put DRAM in read
- *			    leveling mode. Zero for normal operation.
- */
-mrs_cmd_t ddr3_get_mr3(char dataflow_from_mpr)
-{
-	mrs_cmd_t cmd = 3 << 16;
-
-	if (dataflow_from_mpr)
-		cmd |= (1 << 2);
-
-	return cmd;
-}
-
-/**
- * \brief Mirror the address bits for this MRS command
- *
- * Swap the following bits in the MRS command:
- *	- MA3 <-> MA4
- *	- MA5 <-> MA6
- *	- MA7 <-> MA8
- *	- BA0 <-> BA1
- */
-mrs_cmd_t ddr3_mrs_mirror_pins(mrs_cmd_t cmd)
-{
-	u32 downshift, upshift;
-	/* High bits=    A4    |    A6    |    A8    |    BA1 */
-	/* Low bits =    A3    |    A5    |    A7    |    BA0 */
-	u32 lowbits = (1 << 3) | (1 << 5) | (1 << 7) | (1 << 16);
-	downshift = (cmd & (lowbits << 1));
-	upshift = (cmd & lowbits);
-	cmd &= ~(lowbits | (lowbits << 1));
-	cmd |= (downshift >> 1) | (upshift << 1);
-	return cmd;
+		printk(BIOS_INFO, "  tCMDmin           : %3u\n", DIV_ROUND_UP(dimm->tCMD, 256));
 }

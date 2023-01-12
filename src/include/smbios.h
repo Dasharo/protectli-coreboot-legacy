@@ -40,6 +40,7 @@ const char *smbios_system_sku(void);
 
 unsigned int smbios_cpu_get_max_speed_mhz(void);
 unsigned int smbios_cpu_get_current_speed_mhz(void);
+unsigned int smbios_processor_external_clock(void);
 
 const char *smbios_mainboard_manufacturer(void);
 const char *smbios_mainboard_product_name(void);
@@ -401,6 +402,11 @@ struct smbios_type4 {
 	u16 processor_family2;
 	u8 eos[2];
 } __packed;
+
+/* defines for smbios_type4 */
+
+#define SMBIOS_PROCESSOR_STATUS_POPULATED		(1 << 6)
+#define SMBIOS_PROCESSOR_STATUS_CPU_ENABLED		(1 << 0)
 
 /* defines for supported_sram_type/current_sram_type */
 

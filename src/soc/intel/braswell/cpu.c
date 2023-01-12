@@ -14,10 +14,29 @@
 #include <cpu/x86/mtrr.h>
 #include <cpu/x86/smm.h>
 #include <reg_script.h>
+#include <smbios.h>
 #include <soc/iosf.h>
 #include <soc/msr.h>
 #include <soc/pattrs.h>
 #include <soc/ramstage.h>
+
+/* BCLK is internally set to 80MHz */
+#define BRASWELL_BCLK	80
+
+unsigned int smbios_cpu_get_max_speed_mhz(void)
+{
+	return (unsigned int)(pattrs_get()->iacore_ratios[IACORE_TURBO] * BRASWELL_BCLK);
+}
+
+unsigned int smbios_cpu_get_current_speed_mhz(void)
+{
+	return (unsigned int)(pattrs_get()->iacore_ratios[IACORE_MAX] * BRASWELL_BCLK);
+}
+
+unsigned int smbios_processor_external_clock(void)
+{
+	return BRASWELL_BCLK;
+}
 
 /* Core level MSRs */
 static const struct reg_script core_msr_script[] = {

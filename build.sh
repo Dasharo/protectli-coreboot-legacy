@@ -17,7 +17,7 @@ if [ $# -le 0 ]; then
 fi
 
 PROTECTLI_BLOBS_URL="https://cloud.3mdeb.com/index.php/s/QajZKSnYieQHBqN/download"
-COREBOOT_SDK_VERSION="1.52"
+COREBOOT_SDK_VERSION="0ad5fbd48d"
 SEABIOS_URL="git@gitlab.com:3mdeb/protectli/seabios.git"
 COREBOOT_URL="git@gitlab.com:3mdeb/protectli/coreboot.git"
 # Do not run distclean by default, so the submodules etc. are not removed when

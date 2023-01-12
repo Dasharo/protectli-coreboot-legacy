@@ -38,6 +38,9 @@ static inline uint32_t fsp_version(FSP_INFO_HEADER *fih)
 	return fih->ImageRevision;
 }
 
+/* Get igd framebuffer bar from SoC */
+uintptr_t fsp_soc_get_igd_bar(void);
+
 /*
  * Relocate FSP entire binary into ram. Returns < 0 on error, 0 on success.
  * The FSP source is pointed to by region_device and the relocation information

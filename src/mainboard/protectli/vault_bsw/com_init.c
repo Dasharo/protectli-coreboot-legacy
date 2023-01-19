@@ -11,7 +11,7 @@ void bootblock_mainboard_early_init(void)
 {
 
 	if (CONFIG(BOARD_PROTECTLI_FW4C)) {
-		ite_reg_write(0x2e << 8, 0x23, 0x09);	/* External CLK */
+		ite_reg_write(GPIO_DEV, 0x23, 0x09);	/* External CLK */
 		ite_reg_write(GPIO_DEV, 0x71, 0x09);	/* PCICLK */
 		ite_reg_write(GPIO_DEV, 0x26, 0xf7);
 	} else {

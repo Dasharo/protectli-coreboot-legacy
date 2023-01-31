@@ -70,6 +70,11 @@ else
 	BUILD_STR=-q -s -a IA32 -a X64 -t COREBOOT -p $(bootloader)/$(bootloader).dsc -b $(BUILD_TYPE) $(TIMER) $(build_flavor)
 endif
 
+# GOP_DRIVER                    	= FALSE
+ifeq ($(CONFIG_EDK2_GOP_DRIVER), y)
+	BUILD_STR += -D USE_PLATFORM_GOP=TRUE
+endif
+
 all: clean build
 
 $(project_dir):
@@ -140,6 +145,11 @@ build: update checktools lan_rom ipxe_rom
 		esac \
 	fi; \
 	cd $(project_dir); \
+		if [ -n "$(CONFIG_EDK2_GOP_DRIVER)" ]; then \
+			echo "Using GOP driver $(CONFIG_EDK2_GOP_FILE)"; \
+			cp $(top)/$(CONFIG_EDK2_GOP_FILE) $(project_dir)/UefiPayloadPkg/IntelGopDriver.efi; \
+			cp $(top)/$(CONFIG_EDK2_VBT_FILE) $(project_dir)/UefiPayloadPkg/vbt.bin; \
+		fi; \
 		export EDK_TOOLS_PATH=$(project_dir)/BaseTools; \
 		export WORKSPACE=$(project_dir); \
 		. ./edksetup.sh BaseTools; \

@@ -51,8 +51,8 @@ build_flavor += -D BOOT_MENU_KEY=0x0015
 build_flavor += -D SETUP_MENU_KEY=0x0008
 build_flavor += -D LOAD_OPTION_ROMS=FALSE
 build_flavor += -D BOOTLOADER=COREBOOT
-build_flavor += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdShowMenu=TRUE
-build_flavor += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdDefaultNetworkBootEnable=TRUE
+#build_flavor += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdShowMenu=TRUE
+#build_flavor += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdDefaultNetworkBootEnable=TRUE
 build_flavor += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow=0
 build_flavor += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn=0
 build_flavor += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow=0
@@ -61,7 +61,7 @@ build_flavor += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn=0
 # NETWORK_IPXE                  = FALSE
 ifeq ($(CONFIG_EDK2_IPXE),y)
 build_flavor += -D NETWORK_IPXE=TRUE
-build_flavor += --pcd gUefiPayloadPkgTokenSpaceGuid.PcdiPXEOptionName=L"Network Boot and Utilities"
+#build_flavor += --pcd gUefiPayloadPkgTokenSpaceGuid.PcdiPXEOptionName=L"Network Boot and Utilities"
 endif
 
 ifeq ($(CONFIG_TIANOCORE_TARGET_IA32), y)
@@ -105,29 +105,7 @@ checktools:
 	type nasm > /dev/null 2>&1 && echo " found nasm." || \
 		( echo " Not found."; echo "Error: Please install nasm."; exit 1 )
 
-lan_rom: $(project_dir)
-	echo "    Including external LAN driver"; \
-	mkdir -p $(project_dir)/UefiPayloadPkg/NetworkDrivers; \
-	case "$(CONFIG_EDK2_LAN_ROM_DRIVER)" in \
-		"") ;; \
-		/*) mkdir -p $(project_dir)/UefiPayloadPkg/NetworkDrivers; \
-		    cp $(CONFIG_EDK2_LAN_ROM_DRIVER) \
-				$(project_dir)/UefiPayloadPkg/NetworkDrivers/LanRom.efi;; \
-		*) mkdir -p $(EDK2_PATH)/UefiPayloadPkg/NetworkDrivers; \
-		   cp $(top)/$(CONFIG_EDK2_LAN_ROM_DRIVER) \
-				$(project_dir)/UefiPayloadPkg/NetworkDrivers/LanRom.efi;; \
-	esac \
-
-ipxe_rom: $(project_dir)
-	if [ "$(CONFIG_EDK2_IPXE)" == "y" ]; then \
-		echo "    Including externally built iPXE"; \
-		mkdir -p $(project_dir)/UefiPayloadPkg/NetworkDrivers; \
-		cp $(top)/payloads/external/iPXE/ipxe/ipxe.rom \
-			$(project_dir)/UefiPayloadPkg/NetworkDrivers/ipxe.efi; \
-	fi \
-
-
-build: update checktools lan_rom ipxe_rom
+build: update checktools
 	unset CC; $(MAKE) -C $(project_dir)/BaseTools
 	echo " build $(project_name) $(TAG)"
 	if [ -n "$(CONFIG_TIANOCORE_BOOTSPLASH_FILE)" ]; then \
@@ -138,6 +116,23 @@ build: update checktools lan_rom ipxe_rom
 			*) cp $(top)/$(CONFIG_TIANOCORE_BOOTSPLASH_FILE) \
 				$(project_dir)/$(logo_pkg)/Logo/Logo.bmp;; \
 		esac \
+	fi; \
+	case "$(CONFIG_EDK2_LAN_ROM_DRIVER)" in \
+		"") ;; \
+		/*) mkdir -p $(project_dir)/UefiPayloadPkg/NetworkDrivers; \
+		    echo "    Including external LAN driver"; \
+		    cp $(CONFIG_EDK2_LAN_ROM_DRIVER) \
+				$(project_dir)/UefiPayloadPkg/NetworkDrivers/LanRom.efi;; \
+		*) mkdir -p $(project_dir)/UefiPayloadPkg/NetworkDrivers; \
+		   echo "    Including external LAN driver"; \
+		   cp $(top)/$(CONFIG_EDK2_LAN_ROM_DRIVER) \
+				$(project_dir)/UefiPayloadPkg/NetworkDrivers/LanRom.efi;; \
+	esac; \
+	if [ "$(CONFIG_EDK2_IPXE)" == "y" ]; then \
+		echo "    Including externally built iPXE"; \
+		mkdir -p $(project_dir)/UefiPayloadPkg/NetworkDrivers; \
+		cp $(top)/payloads/external/iPXE/ipxe/ipxe.rom \
+			$(project_dir)/UefiPayloadPkg/NetworkDrivers/ipxe.efi; \
 	fi; \
 	cd $(project_dir); \
 		export EDK_TOOLS_PATH=$(project_dir)/BaseTools; \

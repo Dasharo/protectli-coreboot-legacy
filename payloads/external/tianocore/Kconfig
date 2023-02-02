@@ -114,4 +114,13 @@ config EDK2_ENABLE_IPXE
 	  Instructs coreboot build system to build iPXE EFI target and include
 	  it in the EDK2 payload.
 
+config EDK2_GOP_DRIVER
+	bool "Add a GOP driver to the Tianocore build"
+	depends on INTEL_GMA_ADD_VBT
+
+config EDK2_GOP_FILE
+	string "GOP driver file"
+	depends on EDK2_GOP_DRIVER
+	default "IntelGopDriver.efi"
+
 endif

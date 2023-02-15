@@ -82,4 +82,8 @@ config FMD_FILE
 	string
 	default "src/mainboard/$(CONFIG_MAINBOARD_DIR)/board.fmd"
 
+config USE_LEGACY_8254_TIMER
+	bool
+	default y
+
 endif # BOARD_PROTECTLI_FW2B

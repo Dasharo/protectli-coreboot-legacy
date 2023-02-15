@@ -82,8 +82,9 @@ void boot_device_security_lockdown(void)
 	if (fmap_locate_area_as_rdev("WP_RO", &dev) < 0) {
 		printk(BIOS_ERR, "BM-LOCKDOWN: Could not find region 'WP_RO'\n");
 		rdev = boot_device_ro();
-	else
+	} else {
 		rdev = &dev;
+	}
 
 	if (rdev && boot_device_wp_region(rdev, lock_type) >= 0)
 		printk(BIOS_INFO, "BM-LOCKDOWN: Enabled bootmedia protection\n");

@@ -61,7 +61,7 @@ chip soc/intel/braswell
 	register "Usb2Port4PerPortTxiSet" = "5"
 	register "Usb2Port4IUsbTxEmphasisEn" = "2"
 	register "Usb2Port4PerPortTxPeHalf" = "0"
-	register "Usb3Lane0Ow2tapgen2deemph3p5" = "0x3a"
+	register "Usb3Lane0Ow2tapgen2deemph3p5" = "0x64"
 	register "Usb3Lane1Ow2tapgen2deemph3p5" = "0x3a"
 	register "Usb3Lane2Ow2tapgen2deemph3p5" = "0x3a"
 	register "Usb3Lane3Ow2tapgen2deemph3p5" = "0x3a"

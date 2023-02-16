@@ -21,6 +21,7 @@ romstage-y += memmap.c
 romstage-y += pmutil.c
 romstage-y += smbus.c
 romstage-y += tsc_freq.c
+romstage-y += util.c
 
 postcar-y += memmap.c
 postcar-y += iosf.c
@@ -34,6 +35,7 @@ ramstage-y += emmc.c
 ramstage-y += gpio.c
 ramstage-y += gfx.c
 ramstage-y += smbus.c
+ramstage-y += util.c
 
 ramstage-y += gpio_support.c
 ramstage-y += iosf.c

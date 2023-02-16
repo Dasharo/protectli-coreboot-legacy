@@ -34,7 +34,6 @@ config CPU_SPECIFIC_OPTIONS
 	select TSC_MONOTONIC_TIMER
 	select TSC_SYNC_MFENCE
 	select UDELAY_TSC
-	select USE_GENERIC_FSP_CAR_INC
 	select INTEL_DESCRIPTOR_MODE_CAPABLE
 	select HAVE_SPI_CONSOLE_SUPPORT
 	select HAVE_FSP_GOP
@@ -45,6 +44,7 @@ config CPU_SPECIFIC_OPTIONS
 	select SOUTHBRIDGE_INTEL_COMMON_SMBUS
 	select SOUTHBRIDGE_INTEL_COMMON_SPI_SILVERMONT
 	select IOAPIC
+	select UDK_2017_BINDING
 
 config DCACHE_BSP_STACK_SIZE
 	hex
@@ -90,17 +90,26 @@ config SMM_RESERVED_SIZE
 # +-------------+ DCACHE_RAM_BASE
 #
 
+config USE_GENERIC_FSP_CAR_INC
+	bool
+	default y
+
 config DCACHE_RAM_BASE
 	hex
 	default 0xfef00000
 
 config DCACHE_RAM_SIZE
 	hex
+	default 0x20000 if !USE_GENERIC_FSP_CAR_INC
 	default 0x4000
 	help
 	  The size of the cache-as-ram region required during bootblock
 	  and/or romstage. Note DCACHE_RAM_SIZE and DCACHE_RAM_MRC_VAR_SIZE
 	  must add up to a power of 2.
+
+config FSP_T_RESERVED_SIZE
+	hex
+	default 0x1c000 if !USE_GENERIC_FSP_CAR_INC
 
 config ENABLE_BUILTIN_COM1
 	bool "Enable builtin COM1 Serial Port"

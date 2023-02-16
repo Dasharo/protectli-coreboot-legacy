@@ -86,4 +86,8 @@ config USE_LEGACY_8254_TIMER
 	bool
 	default y
 
+config USE_GENERIC_FSP_CAR_INC
+	bool
+	default n
+
 endif # BOARD_PROTECTLI_FW2B

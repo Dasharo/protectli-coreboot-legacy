@@ -71,6 +71,7 @@ static void sc_add_mmio_resources(struct device *dev)
 			(CONFIG_COREBOOT_ROMSIZE_KB * KiB));	/* BIOS ROM */
 
 	add_mmio_resource(dev, 0xfec, IO_APIC_ADDR, 0x00001000); /* IOAPIC */
+	add_mmio_resource(dev, 0xfed, HPET_BASE_ADDRESS, HPET_BASE_SIZE); /* HPET */
 }
 
 /* Default IO range claimed by the LPC device. The upper bound is exclusive. */

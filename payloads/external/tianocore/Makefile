@@ -42,7 +42,8 @@ build_flavor += -D PS2_KEYBOARD_ENABLE=FALSE
 build_flavor += -D PLATFORM_BOOT_TIMEOUT=6
 build_flavor += -D SHELL_TYPE=BUILD_SHELL
 build_flavor += -D USE_CBMEM_FOR_CONSOLE=FALSE
-build_flavor += -D SECURE_BOOT_ENABLE=TRUE
+build_flavor += -D SECURE_BOOT_ENABLE=FALSE
+build_flavor += -D SECURE_BOOT_DEFAULT_ENABLE=FALSE
 build_flavor += -D TPM_ENABLE=FALSE
 build_flavor += -D NETWORK_LAN_ROM=TRUE
 build_flavor += -D DISABLE_MTRR_PROGRAMMING=TRUE

@@ -74,6 +74,9 @@
 	_ebss = .;
 	_car_unallocated_start = .;
 
+	_car_fsp_reserved_start = . + CONFIG_DCACHE_RAM_SIZE - (. - _car_region_start)
+				  - CONFIG_FSP_T_RESERVED_SIZE;
+
 	_car_region_end = . + CONFIG_DCACHE_RAM_SIZE - (. - _car_region_start);
 }
 . = _car_region_end;

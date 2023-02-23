@@ -8,6 +8,7 @@ ifeq ($(CONFIG_UEFI_2_4_BINDING),y)
 # a fixed width type.
 CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/uefi_2.4/MdePkg/Include/Ia32
 CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/uefi_2.4/MdePkg/Include
+CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/uefi_2.4/MdeModulePkg/Include
 else ifeq ($(CONFIG_UDK_2015_BINDING),y)
 CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/UDK2015/MdePkg/Include/Ia32
 CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/UDK2015/MdePkg/Include
@@ -16,4 +17,17 @@ else ifeq ($(CONFIG_UDK_2017_BINDING),y)
 CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/UDK2017/MdePkg/Include/Ia32
 CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/UDK2017/MdePkg/Include
 CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/UDK2017/IntelFsp2Pkg/Include
+CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/UDK2017/MdeModulePkg/Include
+else ifeq ($(CONFIG_UDK_202005_BINDING),y)
+CPPFLAGS_x86_32 += -I$(src)/vendorcode/intel/edk2/edk2-stable202005/MdePkg/Include/Ia32
+CPPFLAGS_x86_64 += -I$(src)/vendorcode/intel/edk2/edk2-stable202005/MdePkg/Include/X64
+CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/edk2-stable202005/MdePkg/Include
+CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/edk2-stable202005/IntelFsp2Pkg/Include
+CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/edk2-stable202005/MdeModulePkg/Include
+else ifeq ($(CONFIG_UDK_202111_BINDING),y)
+CPPFLAGS_x86_32 += -I$(src)/vendorcode/intel/edk2/edk2-stable202111/MdePkg/Include/Ia32
+CPPFLAGS_x86_64 += -I$(src)/vendorcode/intel/edk2/edk2-stable202111/MdePkg/Include/X64
+CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/edk2-stable202111/MdePkg/Include
+CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/edk2-stable202111/IntelFsp2Pkg/Include
+CPPFLAGS_common += -I$(src)/vendorcode/intel/edk2/edk2-stable202111/MdeModulePkg/Include
 endif

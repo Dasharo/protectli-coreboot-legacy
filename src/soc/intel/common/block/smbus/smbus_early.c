@@ -17,6 +17,8 @@ static const struct reg_script smbus_init_script[] = {
 	REG_IO_WRITE8(SMBUS_IO_BASE + SMBHSTCTL, 0),
 	/* Clear errors */
 	REG_IO_WRITE8(SMBUS_IO_BASE + SMBHSTSTAT, 0xff),
+	/* Clear Auxiliary controll register */
+	REG_IO_WRITE8(SMBUS_IO_BASE + SMBHSTAUXC, 0),
 	/* Indicate the end of this array by REG_SCRIPT_END */
 	REG_SCRIPT_END,
 };

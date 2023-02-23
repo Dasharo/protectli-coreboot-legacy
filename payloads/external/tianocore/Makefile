@@ -45,25 +45,28 @@ build_flavor += -D USE_CBMEM_FOR_CONSOLE=FALSE
 build_flavor += -D SECURE_BOOT_ENABLE=FALSE
 build_flavor += -D SECURE_BOOT_DEFAULT_ENABLE=FALSE
 build_flavor += -D TPM_ENABLE=FALSE
-build_flavor += -D NETWORK_LAN_ROM=TRUE
 build_flavor += -D DISABLE_MTRR_PROGRAMMING=TRUE
-build_flavor += -D DASHARO_SYSTEM_FEATURES_ENABLE=TRUE
+build_flavor += -D DASHARO_SYSTEM_FEATURES_ENABLE=FALSE
 build_flavor += -D BOOT_MENU_KEY=0x0015
 build_flavor += -D SETUP_MENU_KEY=0x0008
 build_flavor += -D LOAD_OPTION_ROMS=FALSE
 build_flavor += -D BOOTLOADER=COREBOOT
-#build_flavor += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdShowMenu=TRUE
-#build_flavor += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdDefaultNetworkBootEnable=TRUE
+build_flavor += -D VARIABLE_SUPPORT=SMMSTORE
+build_flavor += -D PERFORMANCE_MEASUREMENT_ENABLE=TRUE
+ifneq ($(CONFIG_EDK2_LAN_ROM_DRIVER),)
+build_flavor += -D NETWORK_LAN_ROM=TRUE
+endif
+# NETWORK_IPXE                  = FALSE
+ifeq ($(CONFIG_EDK2_IPXE),y)
+build_flavor += -D NETWORK_IPXE=TRUE
+build_flavor += --pcd gUefiPayloadPkgTokenSpaceGuid.PcdiPXEOptionName=L"Network Boot and Utilities"
+build_flavor += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdDefaultNetworkBootEnable=TRUE
+endif
 build_flavor += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow=0
 build_flavor += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn=0
 build_flavor += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow=0
 build_flavor += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn=0
 
-# NETWORK_IPXE                  = FALSE
-ifeq ($(CONFIG_EDK2_IPXE),y)
-build_flavor += -D NETWORK_IPXE=TRUE
-#build_flavor += --pcd gUefiPayloadPkgTokenSpaceGuid.PcdiPXEOptionName=L"Network Boot and Utilities"
-endif
 
 ifeq ($(CONFIG_TIANOCORE_TARGET_IA32), y)
 	BUILD_STR=-q -s -a IA32 -t COREBOOT -p $(bootloader)/$(bootloader)Ia32.dsc -b $(BUILD_TYPE) $(TIMER) $(build_flavor)
@@ -94,6 +97,8 @@ update: $(project_dir)
 		fi; \
 		if git status --ignore-submodules=dirty | grep -qv clean; then \
 			echo "    Checking out $(project_name) revision $(TAG)"; \
+			git reset --hard HEAD > /dev/null; \
+			git clean -df > /dev/null; \
 			git checkout --detach $(TAG); \
 		else \
 			echo "    Working directory not clean; will not overwrite"; \
@@ -153,6 +158,7 @@ build: update checktools
 		if [ $$? -ne 0 ]; then \
 			cat ../tools_def.txt >> $(project_dir)/Conf/tools_def.txt; \
 		fi; \
+		echo "build $(BUILD_STR)"; \
 		build $(BUILD_STR); \
 		mv $(project_dir)/Build/$(bootloader)*/*/FV/UEFIPAYLOAD.fd $(project_dir)/Build/UEFIPAYLOAD.fd; \
 		git checkout $(logo_pkg)/Logo/Logo.bmp > /dev/null 2>&1 || true

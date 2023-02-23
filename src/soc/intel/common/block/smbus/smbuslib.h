@@ -17,6 +17,7 @@
 #define SMBHSTCMD	0x3
 #define SMBXMITADD	0x4
 #define SMBHSTDAT0	0x5
+#define SMBHSTAUXC	0xd
 
 #define SMBUS_TIMEOUT	15	/* 15ms */
 

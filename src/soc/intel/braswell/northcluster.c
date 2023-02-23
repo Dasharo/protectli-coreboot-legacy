@@ -147,13 +147,6 @@ static void nc_read_resources(struct device *dev)
 	reserved_ram_resource(dev, index++, (0xc0000 >> 10),
 			      (0x100000 - 0xc0000) >> 10);
 
-	/*
-	 * Reserve local APIC
-	 */
-	base_k = RES_IN_KIB(LAPIC_DEFAULT_BASE);
-	size_k = RES_IN_KIB(0x00100000);
-	mmio_resource(dev, index++, base_k, size_k);
-
 	if (CONFIG(CHROMEOS))
 		chromeos_reserve_ram_oops(dev, index++);
 }

@@ -56,7 +56,7 @@ function buildImage {
 
 	if [ -d 3rdparty/blobs/mainboard/protectli ]; then
 		cd 3rdparty/blobs/mainboard/protectli
-		git checkout 82ade4a9681dac0192b7f482a308e55b05edb5d2
+		git checkout b3beeb6b6514d967ec5638f1b6d784bf0938a509
 		cd -
 	fi
 

@@ -6,14 +6,16 @@
 
 # 2022.1 - Last commit of January 2022
 # When updating, change the name both here and in payloads/external/iPXE/Kconfig
-STABLE_COMMIT_ID=6ba671acd922ee046b257c5119b8a0f64d275473
+
+# Temporarily Dasharo fork is used until i225/i226 native support is merged.
+STABLE_COMMIT_ID=838611b34e172baee46a10b443e9f1e5f6e6344f
 
 TAG-$(CONFIG_IPXE_MASTER)=origin/master
 TAG-$(CONFIG_IPXE_STABLE)=$(STABLE_COMMIT_ID)
 
 project_name=iPXE
 project_dir=ipxe
-project_git_repo=https://git.ipxe.org/ipxe.git
+project_git_repo=https://github.com/Dasharo/ipxe.git
 
 unexport KCONFIG_AUTOHEADER
 unexport KCONFIG_AUTOCONFIG

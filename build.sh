@@ -43,21 +43,36 @@ function buildImage {
 	# we are probably using zip with source code and we need to enter
 	# coreboot directory first
 		cd coreboot
-        else
+	else
 	# we are probably in the coreboot repository already
 		if [ ! -d 3rdparty/blobs/mainboard ]; then
 			git submodule update --init --checkout
 		fi
 	fi
 
-	if [ ! -d 3rdparty/blobs/mainboard/protectli ]; then
-		git clone git@github.com:Dasharo/protectli-blobs.git 3rdparty/blobs/mainboard/protectli
-	fi
+	if [ "$_platform" != "fw4c" ]; then
 
-	if [ -d 3rdparty/blobs/mainboard/protectli ]; then
-		cd 3rdparty/blobs/mainboard/protectli
-		git checkout b3beeb6b6514d967ec5638f1b6d784bf0938a509
-		cd -
+		if [ ! -d 3rdparty/blobs/mainboard/protectli ]; then
+			git clone git@github.com:Dasharo/protectli-blobs.git 3rdparty/blobs/mainboard/protectli
+		fi
+
+		if [ -d 3rdparty/blobs/mainboard/protectli ]; then
+			cd 3rdparty/blobs/mainboard/protectli
+			git checkout b3beeb6b6514d967ec5638f1b6d784bf0938a509
+			cd -
+		fi
+	else
+		if [ ! -f protectli_fw4c_v4.12.0.12.rom ]; then
+			wget https://github.com/protectli-root/protectli-firmware-updater/raw/2157e8638ed2b2bf2b28cc62c50869c49a90dcd9/images/protectli_fw4c_v4.12.0.12.rom || exit 1
+		fi
+		dockerShellCmd "make -C util/cbfstool && make -C util/ifdtool"
+		dockerShellCmd "util/cbfstool/cbfstool protectli_fw4c_v4.12.0.12.rom extract -n pci8086,22b0.rom -f vgabios.bin"
+		dockerShellCmd "util/ifdtool/ifdtool -x protectli_fw4c_v4.12.0.12.rom"
+		cp vgabios.bin vgabios_c0.bin
+		mv flashregion_0_flashdescriptor.bin descriptor.bin
+		mv flashregion_2_intel_me.bin me.bin
+		rm flashregion_1_bios.bin
+		rm protectli_fw4c_v4.12.0.12.rom
 	fi
 
 	git submodule update --init --checkout --recursive
